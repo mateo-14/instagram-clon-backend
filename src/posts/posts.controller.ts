@@ -26,7 +26,7 @@ export async function deletePost(req: Request, res: Response, next: NextFunction
   }
 }
 
-export async function addLike(req: Request, res: Response, next: NextFunction) {
+export async function addClientLike(req: Request, res: Response, next: NextFunction) {
   const { userId, params } = req;
 
   try {
@@ -39,7 +39,7 @@ export async function addLike(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export async function removeLike(req: Request, res: Response, next: NextFunction) {
+export async function removeClientLike(req: Request, res: Response, next: NextFunction) {
   const { userId, params } = req;
 
   try {
@@ -53,6 +53,7 @@ export async function removeLike(req: Request, res: Response, next: NextFunction
 
 export async function getFeedPosts(req: Request, res: Response, next: NextFunction) {
   const { userId, query } = req;
+  
   try {
     const posts = await postsService.getFeedPosts(userId, parseInt(query.last?.toString() || '') || 0);
     res.json(posts);

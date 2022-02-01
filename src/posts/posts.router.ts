@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import {
-  addLike,
+  addClientLike,
   createPost,
   deletePost,
   getFeedPosts,
   getPost,
-  removeLike,
+  removeClientLike,
 } from './posts.controller';
 import multer from 'multer';
 import verifyJwtMiddleware from 'common/jwt/jwt.middleware';
@@ -26,7 +26,7 @@ router.get('/feed', verifyJwtMiddleware, getFeedPosts);
 router.get('/:id', verifyJwtMiddleware, getPost);
 router.post('/', verifyJwtMiddleware, upload.array('images', POST_MAX_IMAGES), createPost);
 router.delete('/:id', verifyJwtMiddleware, deletePost);
-router.put('/:id/likes', verifyJwtMiddleware, addLike);
-router.delete('/:id/likes', verifyJwtMiddleware, removeLike);
+router.put('/:id/likes/me', verifyJwtMiddleware, addClientLike);
+router.delete('/:id/likes/me', verifyJwtMiddleware, removeClientLike);
 
 export default router;
