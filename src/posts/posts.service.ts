@@ -17,8 +17,7 @@ class PostService {
       await prisma.postLike.create({ data: { userId, postId } });
       return true;
     } catch (err) {
-      if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002') return false;
-
+      if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002') return true;
       throw err;
     }
   }
@@ -30,7 +29,7 @@ class PostService {
       await prisma.postLike.delete({ where: { userId_postId: { userId, postId } } });
       return true;
     } catch (err) {
-      if (err instanceof PrismaClientKnownRequestError && err.code === 'P2025') return false;
+      if (err instanceof PrismaClientKnownRequestError && err.code === 'P2025') return true;
       throw err;
     }
   }
@@ -80,6 +79,16 @@ class PostService {
     }
   }
 
+  async deletePost(id: number, authorId: number): Promise<boolean> {
+    const post = await prisma.post.findFirst({
+      where: { id, authorId },
+      include: { images: { select: { key: true } } },
+    });
+    if (!post) return false;
+    await prisma.post.delete({ where: { id } });
+    await this.fileStorageRepository.deleteMany(post.images.map((image) => image.key));
+    return true;
+  }
 }
 
 export default new PostService(FileStorageRepository);
