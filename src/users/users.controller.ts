@@ -12,7 +12,17 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     next(err);
   }
 }
-export async function udpateClientProfile(req: Request, res: Response) {}
+export async function udpateClientProfile(req: Request, res: Response, next: NextFunction) {
+  const { userId, body, file } = req;
+  
+  try {
+    const updatedUser = await usersService.updateUser(userId, { ...body, image: file });
+    if (!updatedUser) return res.sendStatus(404);
+    res.json(updatedUser);
+  } catch (err) {
+    next(err);
+  }
+}
 
 export async function addClientFollow(req: Request, res: Response, next: NextFunction) {
   const { userId, params } = req;
@@ -43,6 +53,7 @@ export async function removeClientFollow(req: Request, res: Response, next: Next
   }
 }
 
-export async function removeFollower(req: Request, res: Response, next: NextFunction) {
-  res.sendStatus(501)
+export async function removeClientFollower(req: Request, res: Response, next: NextFunction) {
+  // TODO: Add remove followers to req.userId user
+  res.sendStatus(501);
 }

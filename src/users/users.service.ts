@@ -1,13 +1,15 @@
 import FileStorage from 'common/interfaces/FileStorage';
 import FileStorageRepository from 'common/repositories/FileStorageRepository';
 import prisma from 'common/prismaClient';
-import PublicUser from 'common/models/PublicUser';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
-
+import path from 'path';
+import supabaseClient, { BUCKET_NAME } from 'common/supabaseClient';
+import CustomUser from 'common/models/CustomUser';
+import { prismaUserToUser } from 'common/util/prismaUserToUser';
 class UsersService {
   constructor(private fileStorageRepository: FileStorage) {}
 
-  async getUserById(id: number): Promise<PublicUser | null> {
+  async getUserById(id: number): Promise<CustomUser | null> {
     const user = await prisma.user.findUnique({
       where: { id },
       select: {
@@ -21,14 +23,8 @@ class UsersService {
     });
 
     if (!user) return null;
-    return {
-      id: user.id,
-      username: user.username,
-      displayName: user.displayName || undefined,
-      bio: user.bio || undefined,
-      profileImage: user.profileImage?.url,
-      _count: user._count,
-    };
+    
+    return prismaUserToUser(user) 
   }
 
   async addFollower(id: number, followerId: number): Promise<boolean> {
@@ -66,6 +62,64 @@ class UsersService {
         return false;
       throw err;
     }
+  }
+
+  async updateUser(
+    id: number,
+    data: {
+      username?: string;
+      displayName?: string;
+      email?: string;
+      bio?: string;
+      image?: Express.Multer.File;
+    }
+  ): Promise<CustomUser | null> {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: { profileImage: { select: { key: true } } },
+    });
+
+    if (!user) return null;
+
+    const newData: any = {
+      username: data.username,
+      email: data.email,
+      displayName: data.displayName,
+      bio: data.bio,
+    };
+
+    if (data.image) {
+      if (user.profileImage) await this.fileStorageRepository.deleteMany([user.profileImage?.key]);
+
+      try {
+        const imageKey = `users/${id}/profile${path.extname(data.image.originalname)}`;
+        await this.fileStorageRepository.upload({
+          file: data.image,
+          key: imageKey,
+        });
+
+        const imageUrl =
+          supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(imageKey).publicURL || '';
+
+        newData.profileImage = { create: { key: imageKey, url: imageUrl } };
+      } catch (err) {
+        throw err;
+      }
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      select: {
+        id: true,
+        displayName: true,
+        username: true,
+        bio: true,
+        profileImage: { select: { url: true } },
+      },
+      data: newData,
+    });
+
+    return prismaUserToUser(updatedUser);
   }
 }
 
