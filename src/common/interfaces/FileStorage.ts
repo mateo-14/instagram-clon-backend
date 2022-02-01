@@ -1,8 +1,6 @@
-import UploadedFile from 'common/models/UploadedFile';
-
 export type FileData = {
   key: string;
-  file: Express.Multer.File;
+  file: { mimetype: string; buffer: Buffer };
 };
 
 export default interface FileStorage {
