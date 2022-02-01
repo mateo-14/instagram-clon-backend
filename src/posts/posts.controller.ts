@@ -8,18 +8,23 @@ export async function createPost(req: Request, res: Response, next: NextFunction
   try {
     const post = await postsService.createPost(req.files, text, req.userId);
     res.json(post);
-  } catch(err) {
-    next(err)
+  } catch (err) {
+    next(err);
   }
 }
 
-export async function deletePost(req: Request, res: Response) {}
+export async function deletePost(req: Request, res: Response) {
+  const { userId, params } = req;
+  const { id } = params;
+
+}
 
 export async function addLike(req: Request, res: Response, next: NextFunction) {
-  const { id } = req.params;
+  const { userId, params } = req;
+  const { id } = params;
 
   try {
-    const exists = await postsService.addLike(parseInt(id), 1);
+    const exists = await postsService.addLike(parseInt(id), userId);
     if (!exists) return res.sendStatus(404);
     res.sendStatus(204);
   } catch (err) {
@@ -28,10 +33,11 @@ export async function addLike(req: Request, res: Response, next: NextFunction) {
 }
 
 export async function removeLike(req: Request, res: Response, next: NextFunction) {
-  const { id } = req.params;
+  const { userId, params } = req;
+  const { id } = params;
 
   try {
-    const found = await postsService.removeLike(parseInt(id), 1);
+    const found = await postsService.removeLike(parseInt(id), userId);
     if (!found) return res.sendStatus(404);
     res.sendStatus(204);
   } catch (err) {

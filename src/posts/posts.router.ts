@@ -15,9 +15,9 @@ const upload = multer({
 
 const POST_MAX_IMAGES: number = parseInt(process.env.POST_MAX_IMAGES!) || 1;
 
-router.post('/', jwtMiddleware,upload.array('images', POST_MAX_IMAGES), createPost);
-router.delete('/:id', deletePost);
-router.put('/:id/likes', addLike);
-router.delete('/:id/likes', removeLike);
+router.post('/', jwtMiddleware, upload.array('images', POST_MAX_IMAGES), createPost);
+router.delete('/:id', jwtMiddleware, deletePost);
+router.put('/:id/likes', jwtMiddleware, addLike);
+router.delete('/:id/likes', jwtMiddleware, removeLike);
 
 export default router;
