@@ -118,6 +118,7 @@ class UsersService {
           username: true,
           bio: true,
           profileImage: { select: { url: true } },
+          email: true
         },
         data: newData,
       });

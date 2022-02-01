@@ -8,10 +8,11 @@ import {
   removeClientFollower,
   udpateClientProfile,
 } from './users.controller';
+import updateValidator from './validators/update.validator';
 
 const router = Router();
 
-router.patch('/me', verifyJwtMiddleware, upload.single('image'), udpateClientProfile);
+router.patch('/me', verifyJwtMiddleware, upload.single('image'), updateValidator, udpateClientProfile);
 router.get('/:id', getUser);
 router.put('/:id/followers/me', verifyJwtMiddleware, addClientFollow);
 router.delete('/:id/followers/me', verifyJwtMiddleware, removeClientFollow);
