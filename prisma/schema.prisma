@@ -9,3 +9,73 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  username     String        @unique
+  password     String
+  displayName  String?
+  bio          String?
+  profileImage File?         @relation(fields: [fileId], references: [id])
+  createdAt    DateTime      @default(now())
+  posts        Post[]
+  comments     Comment[]
+  postLikes    PostLike[]
+  commentLikes CommentLike[]
+  fileId       Int?
+}
+
+model Post {
+  id        Int        @id @default(autoincrement())
+  createdAt DateTime   @default(now())
+  author    User       @relation(fields: [authorId], references: [id])
+  authorId  Int
+  text      String
+  images    File[]
+  comments  Comment[]
+  likes     PostLike[]
+}
+
+model Comment {
+  id               Int           @id @default(autoincrement())
+  createdAt        DateTime      @default(now())
+  author           User          @relation(fields: [authorId], references: [id])
+  authorId         Int
+  text             String
+  post             Post?         @relation(fields: [postId], references: [id])
+  postId           Int?
+  replies          Comment[]     @relation("CommentToComment")
+  commentReplied   Comment?      @relation("CommentToComment", fields: [commentRepliedId], references: [id])
+  commentRepliedId Int?
+  likes            CommentLike[]
+}
+
+model PostLike {
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int
+
+  @@id([userId, postId])
+}
+
+model CommentLike {
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  comment   Comment  @relation(fields: [commentId], references: [id])
+  commentId Int
+
+  @@id([userId, commentId])
+}
+
+model File {
+  id      Int            @id @default(autoincrement())
+  key     String         @unique
+  url     String
+  post    Post?          @relation(fields: [postId], references: [id])
+  postId  Int?
+  user    User[]
+}
