@@ -1,11 +1,11 @@
-import PublicUser from './PublicUser';
+import CustomUser from './CustomUser';
 
 export default interface UserPost {
   id: number;
   createdAt: Date;
   text: string;
   images: string[];
-  author: PublicUser;
+  author: CustomUser;
   _count: {
     comments: number;
     likes: number;
