@@ -5,7 +5,23 @@ import FileStorageRepository from 'common/repositories/FileStorageRepository';
 import prisma from 'common/prismaClient';
 import path from 'path';
 import supabaseClient, { BUCKET_NAME } from 'common/supabaseClient';
+import { File, Post } from '@prisma/client';
 
+type PrismaPost = Post & { author: { id: number; username: string; profileImage: File | null } } & {
+  _count: { comments: number; likes: number };
+};
+
+function prismaPostToUserPost(post: PrismaPost)  {
+  return {
+    id: post.id,
+    authorId: post.authorId,
+    text: post.text,
+    createdAt: post.createdAt,
+    totalComments: post._count.comments,
+    totalLikes: post._count.likes,
+    author: { ...post.author, profileImage: post.author.profileImage?.url },
+  };
+}
 class PostService {
   constructor(private fileStorageRepository: FileStorage) {}
 
@@ -65,11 +81,10 @@ class PostService {
         })),
       });
       return {
-        ...post,
+        ...prismaPostToUserPost({...post, _count: {comments: 0, likes:0}}),
         images: keys.map(
           (key) => supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(key).publicURL || ''
         ),
-        author: { ...post.author, profileImage: post.author.profileImage?.url },
       };
     } catch (err) {
       console.error(err);
@@ -88,6 +103,26 @@ class PostService {
     await prisma.post.delete({ where: { id } });
     await this.fileStorageRepository.deleteMany(post.images.map((image) => image.key));
     return true;
+  }
+
+  async getPost(id: number): Promise<UserPost | null> {
+    const post = await prisma.post.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: { comments: true, likes: true },
+        },
+        images: { select: { url: true } },
+        author: { select: { id: true, username: true, profileImage: true } },
+      },
+    });
+
+    if (!post) return null;
+
+    return {
+      ...prismaPostToUserPost(post),
+      images: post.images.map((image) => image.url),
+    };
   }
 }
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { addLike, createPost, deletePost, removeLike } from './posts.controller';
+import { addLike, createPost, deletePost, getFeedPosts, getPost, removeLike } from './posts.controller';
 import multer from 'multer';
 import jwtMiddleware from 'common/jwt/jwt.middleware';
 
@@ -15,6 +15,8 @@ const upload = multer({
 
 const POST_MAX_IMAGES: number = parseInt(process.env.POST_MAX_IMAGES!) || 1;
 
+router.get('/feed', jwtMiddleware, getFeedPosts)
+router.get('/:id', jwtMiddleware, getPost);
 router.post('/', jwtMiddleware, upload.array('images', POST_MAX_IMAGES), createPost);
 router.delete('/:id', jwtMiddleware, deletePost);
 router.put('/:id/likes', jwtMiddleware, addLike);
