@@ -7,6 +7,5 @@ export default interface UserPost {
   images: string[];
   totalComments: number;
   totalLikes: number;
-  authorId: number;
   author: PublicUser;
 }

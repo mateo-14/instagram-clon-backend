@@ -11,10 +11,9 @@ type PrismaPost = Post & { author: { id: number; username: string; profileImage:
   _count: { comments: number; likes: number };
 };
 
-function prismaPostToUserPost(post: PrismaPost)  {
+function prismaPostToUserPost(post: PrismaPost) {
   return {
     id: post.id,
-    authorId: post.authorId,
     text: post.text,
     createdAt: post.createdAt,
     totalComments: post._count.comments,
@@ -81,7 +80,7 @@ class PostService {
         })),
       });
       return {
-        ...prismaPostToUserPost({...post, _count: {comments: 0, likes:0}}),
+        ...prismaPostToUserPost({ ...post, _count: { comments: 0, likes: 0 } }),
         images: keys.map(
           (key) => supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(key).publicURL || ''
         ),
@@ -123,6 +122,35 @@ class PostService {
       ...prismaPostToUserPost(post),
       images: post.images.map((image) => image.url),
     };
+  }
+
+  async getFeedPosts(userId: number, last: number): Promise<UserPost[]> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { following: { select: { id: true } } },
+    });
+
+    if (!user) return [];
+
+    const posts = await prisma.post.findMany({
+      where: { authorId: { in: [...user.following.map((follow) => follow.id), userId] } },
+      orderBy: { createdAt: 'desc' },
+      cursor: last ? { id: last } : undefined,
+      skip: last ? 1 : 0,
+      take: 5,
+      include: {
+        _count: {
+          select: { comments: true, likes: true },
+        },
+        images: { select: { url: true } },
+        author: { select: { id: true, username: true, profileImage: true } },
+      },
+    });
+
+    return posts.map((post) => ({
+      ...prismaPostToUserPost(post),
+      images: post.images.map((image) => image.url),
+    }));
   }
 }
 
