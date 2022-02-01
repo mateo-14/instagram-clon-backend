@@ -31,8 +31,8 @@ export async function removeLike(req: Request, res: Response, next: NextFunction
   const { id } = req.params;
 
   try {
-    const like = await postsService.removeLike(parseInt(id), 1);
-    if (!like) return res.sendStatus(404);
+    const found = await postsService.removeLike(parseInt(id), 1);
+    if (!found) return res.sendStatus(404);
     res.sendStatus(204);
   } catch (err) {
     next(err);

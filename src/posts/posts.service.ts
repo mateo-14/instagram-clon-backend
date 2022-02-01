@@ -2,7 +2,7 @@ import { PostLike } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import FileStorage from 'common/interfaces/FileStorage';
 import UserPost from 'common/models/UserPost';
-import FileStorageRepository from 'common/repositories/StorageRepository';
+import FileStorageRepository from 'common/repositories/FileStorageRepository';
 import prisma from 'common/prismaClient';
 import path from 'path';
 import supabaseClient, { BUCKET_NAME } from 'common/supabaseClient';
@@ -24,14 +24,14 @@ class PostService {
     }
   }
 
-  async removeLike(postId: number, userId: number): Promise<PostLike | null> {
+  async removeLike(postId: number, userId: number): Promise<boolean> {
     const post = await prisma.post.findUnique({ where: { id: postId } });
-    if (!post) return null;
+    if (!post) return false;
     try {
-      const like = await prisma.postLike.delete({ where: { userId_postId: { userId, postId } } });
-      return like;
+      await prisma.postLike.delete({ where: { userId_postId: { userId, postId } } });
+      return true;
     } catch (err) {
-      if (err instanceof PrismaClientKnownRequestError && err.code === 'P2025') return null;
+      if (err instanceof PrismaClientKnownRequestError && err.code === 'P2025') return true;
       throw err;
     }
   }
@@ -52,7 +52,7 @@ class PostService {
     );
 
     try {
-      await this.fileStorageRepository.uploadFiles(
+      await this.fileStorageRepository.uploadMany(
         images.map((file, i) => ({
           file,
           key: `users/${authorId}/posts_images/${post.id}/${i}${path.extname(file.originalname)}`,
@@ -75,11 +75,12 @@ class PostService {
       };
     } catch (err) {
       console.error(err);
-      await this.fileStorageRepository.deleteFiles(keys);
+      await this.fileStorageRepository.deleteMany(keys);
       await prisma.post.delete({ where: { id: post.id } });
       throw err;
     }
   }
+
 }
 
 export default new PostService(FileStorageRepository);

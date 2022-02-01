@@ -6,7 +6,7 @@ export type FileData = {
 };
 
 export default interface FileStorage {
-  uploadFile(file: FileData): Promise<void>;
-  uploadFiles(files: Array<FileData>): Promise<void>;
-  deleteFiles(files: Array<string>): Promise<void>;
+  upload(file: FileData): Promise<void>;
+  uploadMany(files: Array<FileData>): Promise<void>;
+  deleteMany(files: Array<string>): Promise<void>;
 }
