@@ -5,7 +5,9 @@ export default interface UserPost {
   createdAt: Date;
   text: string;
   images: string[];
-  totalComments: number;
-  totalLikes: number;
   author: PublicUser;
+  _count: {
+    comments: number;
+    likes: number;
+  };
 }

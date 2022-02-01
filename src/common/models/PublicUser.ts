@@ -3,6 +3,6 @@ export default interface PublicUser {
   username: string;
   displayName?: string;
   profileImage?: string;
-  totalPosts?: number;
   bio?: string;
+  _count?: { following: number; followedBy: number; posts: number };
 }
