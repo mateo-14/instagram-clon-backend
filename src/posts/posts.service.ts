@@ -7,18 +7,20 @@ import path from 'path';
 import supabaseClient, { BUCKET_NAME } from 'common/supabaseClient';
 import { File, Post } from '@prisma/client';
 
-type PrismaPost = Post & { author: { id: number; username: string; profileImage: File | null } } & {
-  _count: { comments: number; likes: number };
+type PrismaPost = Post & {
+  author: { id: number; username: string; profileImage: File | null };
+  images: { url: string }[];
+  _count?: { likes: number; comments: number };
 };
 
-function prismaPostToUserPost(post: PrismaPost) {
+function prismaPostToUserPost(post: PrismaPost): UserPost {
   return {
     id: post.id,
     text: post.text,
     createdAt: post.createdAt,
-    totalComments: post._count.comments,
-    totalLikes: post._count.likes,
     author: { ...post.author, profileImage: post.author.profileImage?.url },
+    images: post.images?.map((image) => image.url),
+    _count: post._count || { likes: 0, comments: 0 },
   };
 }
 class PostService {
@@ -54,41 +56,46 @@ class PostService {
     text: string,
     authorId: number
   ): Promise<UserPost> {
-    const post = await prisma.post.create({
+    const { id: postId } = await prisma.post.create({
       data: { authorId, text },
-      include: { author: { select: { id: true, username: true, profileImage: true } } },
+      select: { id: true },
     });
 
     const keys = images.map(
-      (file, i) =>
-        `users/${authorId}/posts_images/${post.id}/${i}${path.extname(file.originalname)}`
+      (file, i) => `users/${authorId}/posts_images/${postId}/${i}${path.extname(file.originalname)}`
     );
 
     try {
       await this.fileStorageRepository.uploadMany(
         images.map((file, i) => ({
           file,
-          key: `users/${authorId}/posts_images/${post.id}/${i}${path.extname(file.originalname)}`,
+          key: `users/${authorId}/posts_images/${postId}/${i}${path.extname(file.originalname)}`,
         }))
       );
 
-      await prisma.file.createMany({
-        data: keys.map((key) => ({
-          key,
-          url: supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(key).publicURL || '',
-          postId: post.id,
-        })),
+      const post = await prisma.post.update({
+        where: { id: postId },
+        include: {
+          author: { select: { id: true, username: true, profileImage: true } },
+          images: { select: { url: true } },
+        },
+        data: {
+          images: {
+            createMany: {
+              data: keys.map((key) => ({
+                key,
+                url: supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(key).publicURL || '',
+              })),
+            },
+          },
+        },
       });
-      return {
-        ...prismaPostToUserPost({ ...post, _count: { comments: 0, likes: 0 } }),
-        images: keys.map(
-          (key) => supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(key).publicURL || ''
-        ),
-      };
+
+      return prismaPostToUserPost(post);
     } catch (err) {
       console.error(err);
       await this.fileStorageRepository.deleteMany(keys);
-      await prisma.post.delete({ where: { id: post.id } });
+      await prisma.post.delete({ where: { id: postId } });
       throw err;
     }
   }
@@ -118,10 +125,7 @@ class PostService {
 
     if (!post) return null;
 
-    return {
-      ...prismaPostToUserPost(post),
-      images: post.images.map((image) => image.url),
-    };
+    return prismaPostToUserPost(post);
   }
 
   async getFeedPosts(userId: number, last: number): Promise<UserPost[]> {
@@ -147,10 +151,7 @@ class PostService {
       },
     });
 
-    return posts.map((post) => ({
-      ...prismaPostToUserPost(post),
-      images: post.images.map((image) => image.url),
-    }));
+    return posts.map((post) => prismaPostToUserPost(post));
   }
 }
 
