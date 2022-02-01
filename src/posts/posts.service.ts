@@ -1,4 +1,3 @@
-import { PostLike } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import FileStorage from 'common/interfaces/FileStorage';
 import UserPost from 'common/models/UserPost';
@@ -18,7 +17,7 @@ class PostService {
       await prisma.postLike.create({ data: { userId, postId } });
       return true;
     } catch (err) {
-      if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002') return true;
+      if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002') return false;
 
       throw err;
     }
@@ -31,7 +30,7 @@ class PostService {
       await prisma.postLike.delete({ where: { userId_postId: { userId, postId } } });
       return true;
     } catch (err) {
-      if (err instanceof PrismaClientKnownRequestError && err.code === 'P2025') return true;
+      if (err instanceof PrismaClientKnownRequestError && err.code === 'P2025') return false;
       throw err;
     }
   }
