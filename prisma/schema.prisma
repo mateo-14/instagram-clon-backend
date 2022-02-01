@@ -17,13 +17,15 @@ model User {
   password     String
   displayName  String?
   bio          String?
-  profileImage File?         @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  profileImage File?         @relation(fields: [imageId], references: [id], onDelete: Cascade)
   createdAt    DateTime      @default(now())
   posts        Post[]
   comments     Comment[]
   postLikes    PostLike[]
   commentLikes CommentLike[]
-  fileId       Int?
+  imageId      Int?
+  followedBy   User[]        @relation("UserFollows", references: [id])
+  following    User[]        @relation("UserFollows", references: [id])
 }
 
 model Post {
