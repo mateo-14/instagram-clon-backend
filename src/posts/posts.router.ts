@@ -7,18 +7,10 @@ import {
   getPost,
   removeClientLike,
 } from './posts.controller';
-import multer from 'multer';
 import verifyJwtMiddleware from 'common/jwt/jwt.middleware';
+import upload from 'common/multer';
 
 const router = Router();
-const upload = multer({
-  fileFilter: (req, file, cb) => {
-    if (/image\/(jpeg|png|webp)/.test(file.mimetype)) {
-      return cb(null, true);
-    }
-    cb(new Error('Invalid image type'));
-  },
-});
 
 const POST_MAX_IMAGES: number = parseInt(process.env.POST_MAX_IMAGES!) || 1;
 
