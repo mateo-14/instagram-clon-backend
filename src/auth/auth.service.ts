@@ -1,7 +1,7 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import prisma from 'common/prismaClient';
-import DuplicateEmailError from './exceptions/DuplicateEmailError';
-import DuplicateUserError from './exceptions/DuplicateUsernameError';
+import DuplicateEmailError from '../common/exceptions/DuplicateEmailError';
+import DuplicateUserError from '../common/exceptions/DuplicateUsernameError';
 import bcrypt from 'bcrypt';
 import InvalidPasswordError from './exceptions/InvalidPasswordError';
 import { prismaUserToUser } from 'common/util/prismaUserToUser';
