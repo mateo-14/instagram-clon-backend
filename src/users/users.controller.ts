@@ -1,10 +1,13 @@
+import DuplicateEmailError from 'common/exceptions/DuplicateEmailError';
+import DuplicateUsernameError from 'common/exceptions/DuplicateUsernameError';
+import CustomUser from 'common/models/CustomUser';
 import { NextFunction, Request, Response } from 'express';
 import usersService from './users.service';
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
   const { id } = req.params;
   try {
-    const user = await usersService.getUserById(parseInt(id) || 0);
+    const user: CustomUser | null = await usersService.getUserById(parseInt(id) || 0);
     if (!user) return res.sendStatus(404);
 
     res.json(user);
@@ -14,12 +17,19 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
 }
 export async function udpateClientProfile(req: Request, res: Response, next: NextFunction) {
   const { userId, body, file } = req;
-  
+
   try {
-    const updatedUser = await usersService.updateUser(userId, { ...body, image: file });
+    const updatedUser: CustomUser | null = await usersService.updateUser(userId, {
+      ...body,
+      image: file,
+    });
+
     if (!updatedUser) return res.sendStatus(404);
     res.json(updatedUser);
   } catch (err) {
+    if (err instanceof DuplicateEmailError || err instanceof DuplicateUsernameError)
+      return res.status(400).json({ error: { msg: err.message } });
+
     next(err);
   }
 }

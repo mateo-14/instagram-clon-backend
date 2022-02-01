@@ -6,6 +6,8 @@ import path from 'path';
 import supabaseClient, { BUCKET_NAME } from 'common/supabaseClient';
 import CustomUser from 'common/models/CustomUser';
 import { prismaUserToUser } from 'common/util/prismaUserToUser';
+import DuplicateEmailError from 'common/exceptions/DuplicateEmailError';
+import DuplicateUsernameError from 'common/exceptions/DuplicateUsernameError';
 class UsersService {
   constructor(private fileStorageRepository: FileStorage) {}
 
@@ -23,8 +25,8 @@ class UsersService {
     });
 
     if (!user) return null;
-    
-    return prismaUserToUser(user) 
+
+    return prismaUserToUser(user);
   }
 
   async addFollower(id: number, followerId: number): Promise<boolean> {
@@ -107,19 +109,30 @@ class UsersService {
       }
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      select: {
-        id: true,
-        displayName: true,
-        username: true,
-        bio: true,
-        profileImage: { select: { url: true } },
-      },
-      data: newData,
-    });
+    try {
+      const updatedUser = await prisma.user.update({
+        where: { id },
+        select: {
+          id: true,
+          displayName: true,
+          username: true,
+          bio: true,
+          profileImage: { select: { url: true } },
+        },
+        data: newData,
+      });
+      return prismaUserToUser(updatedUser);
+    } catch (err) {
+      if (err instanceof PrismaClientKnownRequestError) {
+        if (err.code === 'P2002') {
+          const target = (err.meta as any).target;
+          if (target[0] === 'email') throw new DuplicateEmailError();
 
-    return prismaUserToUser(updatedUser);
+          if (target[0] === 'username') throw new DuplicateUsernameError();
+        }
+      }
+      throw err;
+    }
   }
 }
 
