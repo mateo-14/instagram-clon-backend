@@ -1,7 +1,14 @@
 import { Router } from 'express';
-import { addLike, createPost, deletePost, getFeedPosts, getPost, removeLike } from './posts.controller';
+import {
+  addLike,
+  createPost,
+  deletePost,
+  getFeedPosts,
+  getPost,
+  removeLike,
+} from './posts.controller';
 import multer from 'multer';
-import jwtMiddleware from 'common/jwt/jwt.middleware';
+import verifyJwtMiddleware from 'common/jwt/jwt.middleware';
 
 const router = Router();
 const upload = multer({
@@ -15,11 +22,11 @@ const upload = multer({
 
 const POST_MAX_IMAGES: number = parseInt(process.env.POST_MAX_IMAGES!) || 1;
 
-router.get('/feed', jwtMiddleware, getFeedPosts)
-router.get('/:id', jwtMiddleware, getPost);
-router.post('/', jwtMiddleware, upload.array('images', POST_MAX_IMAGES), createPost);
-router.delete('/:id', jwtMiddleware, deletePost);
-router.put('/:id/likes', jwtMiddleware, addLike);
-router.delete('/:id/likes', jwtMiddleware, removeLike);
+router.get('/feed', verifyJwtMiddleware, getFeedPosts);
+router.get('/:id', verifyJwtMiddleware, getPost);
+router.post('/', verifyJwtMiddleware, upload.array('images', POST_MAX_IMAGES), createPost);
+router.delete('/:id', verifyJwtMiddleware, deletePost);
+router.put('/:id/likes', verifyJwtMiddleware, addLike);
+router.delete('/:id/likes', verifyJwtMiddleware, removeLike);
 
 export default router;
