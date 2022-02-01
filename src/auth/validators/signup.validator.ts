@@ -6,7 +6,7 @@ export default [
     .notEmpty()
     .withMessage('Username is required')
     .isLength({ min: 3, max: 25 })
-    .withMessage('Password must be 3 to 25 characters long'),
+    .withMessage('Username must be 3 to 25 characters long'),
   body('password')
     .notEmpty()
     .withMessage('Password is required')
