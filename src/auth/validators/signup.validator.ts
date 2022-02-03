@@ -8,7 +8,7 @@ export default [
     .withMessage('Username is required')
     .isLength({ min: 3, max: 25 })
     .withMessage('Username must be 3 to 25 characters long'),
-  body('displayName').optional().trim(),
+  body('displayName').optional().trim().isLength({ max: 30 }).withMessage('Name must be less than 30 characters'),
   body('password')
     .notEmpty()
     .withMessage('Password is required')
