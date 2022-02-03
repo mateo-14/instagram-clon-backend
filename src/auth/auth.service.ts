@@ -4,14 +4,16 @@ import DuplicateUserError from '../common/exceptions/DuplicateUsernameError';
 import bcrypt from 'bcrypt';
 import InvalidPasswordError from './exceptions/InvalidPasswordError';
 import prismaUserToUser from 'common/utils/prismaUserToUser';
-import CustomUser from 'common/models/CustomUser';
 import * as jwtService from 'common/jwt/jwt.service';
+import { AuthUser } from 'common/models/AuthUser';
+import { getUnsafeUser } from 'users/users.service';
+import UnsafeCustomUser from 'common/models/UnsafeCustomUser';
 
 export async function createUser(
   username: string,
   password: string,
   displayName: string | null
-): Promise<CustomUser & { token: string }> {
+): Promise<AuthUser> {
   try {
     const hash = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
@@ -37,26 +39,26 @@ export async function createUser(
   }
 }
 
-export async function login(
-  username: string,
-  password: string
-): Promise<(CustomUser & { token: string }) | null> {
-  const user = await prisma.user.findUnique({
-    where: { username },
-    include: {
-      _count: {
-        select: { posts: true, followedBy: true, following: true },
-      },
-      profileImage: { select: { url: true } },
-    },
-  });
+export async function login(username: string, password: string): Promise<AuthUser | null> {
+  const user: UnsafeCustomUser | null = await getUnsafeUser({ username });
   if (!user) return null;
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (isPasswordValid) {
     const token: string = await jwtService.generateToken(user.id);
-    return { ...prismaUserToUser(user), token };
+    user.password = undefined!;
+    return { ...user, token };
   }
   throw new InvalidPasswordError();
+}
+
+export async function auth(token: string): Promise<AuthUser | null> {
+  const { userId } = await jwtService.verifyToken(token);
+  const user: UnsafeCustomUser | null = await getUnsafeUser({ id: userId });
+  if (!user) return null;
+
+  const newToken: string = await jwtService.generateToken(user.id);
+  user.password = undefined!;
+  return { ...user, token: newToken };
 }

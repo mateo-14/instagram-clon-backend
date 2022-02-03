@@ -7,6 +7,7 @@ import supabaseClient, { BUCKET_NAME } from 'common/supabaseClient';
 import CustomUser from 'common/models/CustomUser';
 import prismaUserToUser from 'common/utils/prismaUserToUser';
 import DuplicateUsernameError from 'common/exceptions/DuplicateUsernameError';
+import UnsafeCustomUser from 'common/models/UnsafeCustomUser';
 
 const fileStorageRepository: FileStorage = FileStorageRepository;
 
@@ -129,4 +130,20 @@ export async function updateUser(
     }
     throw err;
   }
+}
+
+export async function getUnsafeUser(where: any): Promise<UnsafeCustomUser | null> {
+  const user = await prisma.user.findUnique({
+    where,
+    include: {
+      _count: {
+        select: { posts: true, followedBy: true, following: true },
+      },
+      profileImage: { select: { url: true } },
+    },
+  });
+
+  if (!user) return null;
+
+  return { ...prismaUserToUser(user), password: user?.password };
 }
