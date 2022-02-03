@@ -3,7 +3,6 @@ import CustomUser from 'common/models/CustomUser';
 
 interface PrismaUser {
   id: number;
-  email?: string;
   username: string;
   password?: string;
   displayName: string | null;
@@ -16,7 +15,6 @@ interface PrismaUser {
 export const prismaUserToUser = (user: PrismaUser): CustomUser => ({
   id: user.id,
   username: user.username,
-  email: user.email,
   profileImage: user.profileImage?.url,
   displayName: user.displayName || undefined,
   _count: user._count,

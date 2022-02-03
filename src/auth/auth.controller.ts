@@ -3,7 +3,6 @@ import * as authService from './auth.service';
 import InvalidPasswordError from './exceptions/InvalidPasswordError';
 import CustomUser from 'common/models/CustomUser';
 import * as jwtService from 'common/jwt/jwt.service';
-import DuplicateEmailError from '../common/exceptions/DuplicateEmailError';
 import DuplicateUsernameError from '../common/exceptions/DuplicateUsernameError';
 
 export async function login(req: Request, res: Response, next: NextFunction) {
@@ -23,13 +22,13 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 }
 
 export async function signup(req: Request, res: Response, next: NextFunction) {
-  const { username, email, password, displayName } = req.body;
+  const { username, password, displayName } = req.body;
   try {
-    const user: CustomUser = await authService.createUser(username, email, password, displayName);
+    const user: CustomUser = await authService.createUser(username, password, displayName);
     const token: string = await jwtService.generateToken(user.id);
     res.json({ ...user, token });
   } catch (err) {
-    if (err instanceof DuplicateEmailError || err instanceof DuplicateUsernameError)
+    if (err instanceof DuplicateUsernameError)
       return res.status(400).json({ error: { msg: err.message } });
 
     next(err);

@@ -6,7 +6,6 @@ import path from 'path';
 import supabaseClient, { BUCKET_NAME } from 'common/supabaseClient';
 import CustomUser from 'common/models/CustomUser';
 import { prismaUserToUser } from 'common/util/prismaUserToUser';
-import DuplicateEmailError from 'common/exceptions/DuplicateEmailError';
 import DuplicateUsernameError from 'common/exceptions/DuplicateUsernameError';
 class UsersService {
   constructor(private fileStorageRepository: FileStorage) {}
@@ -71,7 +70,6 @@ class UsersService {
     data: {
       username?: string;
       displayName?: string;
-      email?: string;
       bio?: string;
       image?: Express.Multer.File;
     }
@@ -85,7 +83,6 @@ class UsersService {
 
     const newData: any = {
       username: data.username,
-      email: data.email,
       displayName: data.displayName,
       bio: data.bio,
     };
@@ -118,7 +115,6 @@ class UsersService {
           username: true,
           bio: true,
           profileImage: { select: { url: true } },
-          email: true
         },
         data: newData,
       });
@@ -127,7 +123,6 @@ class UsersService {
       if (err instanceof PrismaClientKnownRequestError) {
         if (err.code === 'P2002') {
           const target = (err.meta as any).target;
-          if (target[0] === 'email') throw new DuplicateEmailError();
 
           if (target[0] === 'username') throw new DuplicateUsernameError();
         }

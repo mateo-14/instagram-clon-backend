@@ -1,4 +1,3 @@
-import DuplicateEmailError from 'common/exceptions/DuplicateEmailError';
 import DuplicateUsernameError from 'common/exceptions/DuplicateUsernameError';
 import CustomUser from 'common/models/CustomUser';
 import { NextFunction, Request, Response } from 'express';
@@ -15,6 +14,7 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
     next(err);
   }
 }
+
 export async function udpateClientProfile(req: Request, res: Response, next: NextFunction) {
   const { userId, body, file } = req;
 
@@ -27,7 +27,7 @@ export async function udpateClientProfile(req: Request, res: Response, next: Nex
     if (!updatedUser) return res.sendStatus(404);
     res.json(updatedUser);
   } catch (err) {
-    if (err instanceof DuplicateEmailError || err instanceof DuplicateUsernameError)
+    if (err instanceof DuplicateUsernameError)
       return res.status(400).json({ error: { msg: err.message } });
 
     next(err);
