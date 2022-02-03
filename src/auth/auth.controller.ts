@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from 'express';
 import * as authService from './auth.service';
 import InvalidPasswordError from './exceptions/InvalidPasswordError';
 import CustomUser from 'common/models/CustomUser';
-import * as jwtService from 'common/jwt/jwt.service';
 import DuplicateUsernameError from '../common/exceptions/DuplicateUsernameError';
 
 export async function login(req: Request, res: Response, next: NextFunction) {
@@ -10,9 +9,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     const user: CustomUser | null = await authService.login(username, password);
     if (!user) return res.status(400).json({ error: { msg: 'Invalid password or username' } });
-
-    const token: string = await jwtService.generateToken(user.id);
-    res.json({ ...user, token });
+    res.json(user);
   } catch (err) {
     if (err instanceof InvalidPasswordError)
       return res.status(400).json({ error: { msg: 'Invalid password or username' } });
@@ -25,8 +22,7 @@ export async function signup(req: Request, res: Response, next: NextFunction) {
   const { username, password, displayName } = req.body;
   try {
     const user: CustomUser = await authService.createUser(username, password, displayName);
-    const token: string = await jwtService.generateToken(user.id);
-    res.json({ ...user, token });
+    res.json(user);
   } catch (err) {
     if (err instanceof DuplicateUsernameError)
       return res.status(400).json({ error: { msg: err.message } });
