@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import postsService from './posts.service';
+import * as postsService from './posts.service';
 
 export async function createPost(req: Request, res: Response, next: NextFunction) {
   if (!(req.files instanceof Array)) return res.sendStatus(400);

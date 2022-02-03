@@ -12,7 +12,7 @@ interface PrismaUser {
   profileImage?: { url: string } | null;
 }
 
-export const prismaUserToUser = (user: PrismaUser): CustomUser => ({
+const prismaUserToUser = (user: PrismaUser): CustomUser => ({
   id: user.id,
   username: user.username,
   profileImage: user.profileImage?.url,
@@ -20,3 +20,5 @@ export const prismaUserToUser = (user: PrismaUser): CustomUser => ({
   _count: user._count,
   bio: user.bio || undefined,
 });
+
+export default prismaUserToUser;

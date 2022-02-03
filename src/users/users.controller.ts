@@ -1,7 +1,7 @@
 import DuplicateUsernameError from 'common/exceptions/DuplicateUsernameError';
 import CustomUser from 'common/models/CustomUser';
 import { NextFunction, Request, Response } from 'express';
-import usersService from './users.service';
+import * as usersService from './users.service';
 
 export async function getUser(req: Request, res: Response, next: NextFunction) {
   const { id } = req.params;
