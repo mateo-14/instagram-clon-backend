@@ -44,8 +44,8 @@ model Comment {
   author           User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId         Int
   text             String
-  post             Post?         @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId           Int?
+  post             Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId           Int
   replies          Comment[]     @relation("CommentToComment")
   commentReplied   Comment?      @relation("CommentToComment", fields: [commentRepliedId], references: [id], onDelete: Cascade)
   commentRepliedId Int?
