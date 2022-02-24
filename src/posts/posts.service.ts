@@ -5,7 +5,7 @@ import FileStorageRepository from 'common/repositories/FileStorageRepository';
 import prisma from 'common/prismaClient';
 import path from 'path';
 import supabaseClient, { BUCKET_NAME } from 'common/supabaseClient';
-import prismaPostToUserPost  from 'common/utils/prismaPostToUserPost';
+import prismaPostToUserPost from 'common/utils/prismaPostToUserPost';
 
 const fileStorageRepository: FileStorage = FileStorageRepository;
 
@@ -76,7 +76,6 @@ export async function createPost(
 
     return prismaPostToUserPost(post);
   } catch (err) {
-    console.error(err);
     await fileStorageRepository.deleteMany(keys);
     await prisma.post.delete({ where: { id: postId } });
     throw err;
@@ -94,7 +93,7 @@ export async function deletePost(id: number, authorId: number): Promise<boolean>
   return true;
 }
 
-export async function getPost(id: number): Promise<UserPost | null> {
+export async function getPost(id: number, userId?: number): Promise<UserPost | null> {
   const post = await prisma.post.findUnique({
     where: { id },
     include: {
@@ -103,12 +102,13 @@ export async function getPost(id: number): Promise<UserPost | null> {
       },
       images: { select: { url: true } },
       author: { select: { id: true, username: true, profileImage: true } },
+      likes: userId ? { where: { userId }, select: { userId: true } } : false,
     },
   });
 
   if (!post) return null;
 
-  return prismaPostToUserPost(post);
+  return prismaPostToUserPost(post, userId);
 }
 
 export async function getFeedPosts(userId: number, last: number): Promise<UserPost[]> {
@@ -131,8 +131,9 @@ export async function getFeedPosts(userId: number, last: number): Promise<UserPo
       },
       images: { select: { url: true } },
       author: { select: { id: true, username: true, profileImage: true } },
+      likes: { where: { userId }, select: { userId: true } },
     },
   });
 
-  return posts.map((post) => prismaPostToUserPost(post));
+  return posts.map((post) => prismaPostToUserPost(post, userId));
 }

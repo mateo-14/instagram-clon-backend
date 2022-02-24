@@ -5,7 +5,6 @@ import { body } from 'express-validator';
 export default [
   body('text').trim().isLength({ min: 0, max: 2000 }).withMessage('Max text length is 2000 characters'),
   (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.body.text)
     if (!req.files || req.files?.length === 0) return res.sendStatus(400);
     next()
   },

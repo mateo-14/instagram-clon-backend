@@ -37,10 +37,10 @@ export async function auth(req: Request, res: Response) {
 
   try {
     const user: AuthUser | null = await authService.auth(token);
-    if (!user) return res.status(400).json({ error: 'Unauthorized' });
+    if (!user) return res.sendStatus(401);
 
     res.json(user);
   } catch (err) {
-    return res.status(400).json({ error: 'Unauthorized' });
+    return res.sendStatus(401);
   }
 }

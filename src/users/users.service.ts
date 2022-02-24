@@ -145,5 +145,5 @@ export async function getUnsafeUser(where: any): Promise<UnsafeCustomUser | null
 
   if (!user) return null;
 
-  return { ...prismaUserToUser(user), password: user?.password };
+  return { ...prismaUserToUser(user), password: user.password };
 }

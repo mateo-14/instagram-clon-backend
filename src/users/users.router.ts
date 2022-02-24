@@ -14,8 +14,8 @@ const router = Router();
 
 router.patch('/me', verifyJwtMiddleware, upload.single('image'), updateValidator, udpateClientProfile);
 router.get('/:id', getUser);
-router.put('/:id/followers/me', verifyJwtMiddleware, addClientFollow);
-router.delete('/:id/followers/me', verifyJwtMiddleware, removeClientFollow);
+router.put('/:id/followers', verifyJwtMiddleware, addClientFollow);
+router.delete('/:id/followers', verifyJwtMiddleware, removeClientFollow);
 router.delete('/me/followers/:id', verifyJwtMiddleware, removeClientFollower);
 
 export default router;
