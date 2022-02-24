@@ -10,4 +10,5 @@ export default interface UserPost {
     comments: number;
     likes: number;
   };
+  hasClientLike?: boolean;
 }
