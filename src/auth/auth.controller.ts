@@ -9,11 +9,11 @@ export async function login(req: Request, res: Response, next: NextFunction) {
   const { username, password } = req.body;
   try {
     const user: AuthUser | null = await authService.login(username, password);
-    if (!user) return res.status(400).json({ error: 'Invalid password or username' });
+    if (!user) return res.status(400).json({ errors: { error: 'Invalid password or username' } });
     res.json(user);
   } catch (err) {
     if (err instanceof InvalidPasswordError)
-      return res.status(400).json({ error: 'Invalid password or username' });
+      return res.status(400).json({ errors: { error: 'Invalid password or username' } });
 
     next(err);
   }
