@@ -93,7 +93,7 @@ export async function deletePost(id: number, authorId: number): Promise<boolean>
   return true;
 }
 
-export async function getPost(id: number, userId?: number): Promise<UserPost | null> {
+export async function getPost(id: number, clientId?: number): Promise<UserPost | null> {
   const post = await prisma.post.findUnique({
     where: { id },
     include: {
@@ -102,38 +102,65 @@ export async function getPost(id: number, userId?: number): Promise<UserPost | n
       },
       images: { select: { url: true } },
       author: { select: { id: true, username: true, profileImage: true } },
-      likes: userId ? { where: { userId }, select: { userId: true } } : false,
+      likes: clientId ? { where: { userId: clientId }, select: { userId: true } } : false,
     },
   });
 
   if (!post) return null;
 
-  return prismaPostToUserPost(post, userId);
+  return prismaPostToUserPost(post, clientId);
 }
 
-export async function getFeedPosts(userId: number, last: number): Promise<UserPost[]> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { following: { select: { id: true } } },
-  });
-
-  if (!user) return [];
-
+async function getPosts(
+  where: any,
+  last?: number,
+  clientId?: number,
+  take: number = 5
+): Promise<UserPost[]> {
   const posts = await prisma.post.findMany({
-    where: { authorId: { in: [...user.following.map((follow) => follow.id), userId] } },
+    where,
     orderBy: { createdAt: 'desc' },
     cursor: last ? { id: last } : undefined,
     skip: last ? 1 : 0,
-    take: 5,
+    take,
     include: {
       _count: {
         select: { comments: true, likes: true },
       },
       images: { select: { url: true } },
       author: { select: { id: true, username: true, profileImage: true } },
-      likes: { where: { userId }, select: { userId: true } },
+      likes: { where: { userId: clientId }, select: { userId: true } },
     },
   });
 
-  return posts.map((post) => prismaPostToUserPost(post, userId));
+  return posts.map((post) => prismaPostToUserPost(post, clientId));
+}
+
+export async function getFeedPosts(clientId: number, last?: number): Promise<UserPost[]> {
+  const user = await prisma.user.findUnique({
+    where: { id: clientId },
+    select: { following: { select: { id: true } } },
+  });
+
+  if (!user) return [];
+
+  const posts = await getPosts(
+    { authorId: { in: [...user.following.map((follow) => follow.id), clientId] } },
+    last,
+    clientId
+  );
+
+  return posts;
+}
+
+export async function getUserPosts(userId: number, last?: number): Promise<UserPost[] | null> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true },
+  });
+
+  if (!user) return null;
+
+  const posts = await getPosts({ authorId: userId }, last, undefined, 12);
+  return posts;
 }
