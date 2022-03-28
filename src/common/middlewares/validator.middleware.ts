@@ -8,7 +8,7 @@ export default function validatorMiddleware(req: Request, res: Response, next: N
     for (const error of errors.array({ onlyFirstError: true })) {
       formatedErrors[error.param] = error.msg;
     }
-    return res.status(400).json({ errors: formatedErrors, error: true });
+    return res.status(400).json({ errors: formatedErrors });
   }
 
   next();
