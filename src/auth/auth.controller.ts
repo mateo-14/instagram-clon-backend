@@ -25,7 +25,8 @@ export async function signup(req: Request, res: Response, next: NextFunction) {
     const user: AuthUser = await authService.createUser(username, password, displayName);
     res.json(user);
   } catch (err) {
-    if (err instanceof DuplicateUsernameError) return res.status(400).json({ error: err.message });
+    if (err instanceof DuplicateUsernameError)
+      return res.status(400).json({ errors: { error: err.message } });
 
     next(err);
   }
