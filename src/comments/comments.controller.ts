@@ -26,7 +26,8 @@ export async function getComments(req: Request, res: Response, next: NextFunctio
     const comments: CustomComment[] = await commentsService.getComments(
       parseInt(post.toString()),
       parseInt(last?.toString() || '') || 0,
-      parseInt(replied?.toString() || '') || undefined
+      parseInt(replied?.toString() || '') || undefined,
+      req.userId
     );
     res.json(comments);
   } catch (err) {

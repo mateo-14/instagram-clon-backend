@@ -1,25 +1,7 @@
-import { Comment, File } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import CustomComment from 'common/models/CustomComment';
 import prisma from 'common/prismaClient';
-
-function prismaCommentToCustomComment(
-  comment: Comment & {
-    author: { id: number; username: string; profileImage: File | null };
-    commentReplied: { id: number } | null;
-    _count: { likes: number; replies: number };
-  }
-): CustomComment {
-  return {
-    id: comment.id,
-    postId: comment.postId,
-    text: comment.text,
-    _count: comment._count,
-    createdAt: comment.createdAt,
-    commentRepliedId: comment.commentReplied?.id,
-    author: { ...comment.author, profileImage: comment.author.profileImage?.url },
-  };
-}
+import prismaCommentToCustomComment from 'common/utils/prismaCommentToCustomComment';
 
 export async function createComment(
   postId: number,
@@ -68,7 +50,8 @@ export async function deleteComment(id: number, authorId: number): Promise<boole
 export async function getComments(
   postId: number,
   last: number,
-  commentRepliedId: number | null = null
+  commentRepliedId: number | null = null,
+  clientId?: number
 ): Promise<CustomComment[]> {
   const comments = await prisma.comment.findMany({
     where: { postId, commentRepliedId },
@@ -77,13 +60,14 @@ export async function getComments(
       author: { select: { id: true, username: true, profileImage: true } },
       commentReplied: { select: { id: true } },
       _count: { select: { likes: true, replies: true } },
+      likes: { where: { userId: clientId }, select: { userId: true } },
     },
     cursor: last ? { id: last } : undefined,
     skip: last ? 1 : 0,
     take: 5,
   });
 
-  return comments.map(prismaCommentToCustomComment);
+  return comments.map((comment) => prismaCommentToCustomComment(comment, clientId));
 }
 
 export async function addLike(commentId: number, userId: number): Promise<boolean> {
