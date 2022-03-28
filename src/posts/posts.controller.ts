@@ -55,10 +55,7 @@ export async function getFeedPosts(req: Request, res: Response, next: NextFuncti
   const { userId, query } = req;
 
   try {
-    const posts = await postsService.getFeedPosts(
-      userId,
-      parseInt(query.last?.toString() || '') || 0
-    );
+    const posts = await postsService.getFeedPosts(userId, parseInt(query.last?.toString() || ''));
     res.json(posts);
   } catch (err) {
     next(err);
@@ -68,7 +65,7 @@ export async function getFeedPosts(req: Request, res: Response, next: NextFuncti
 export async function getPost(req: Request, res: Response, next: NextFunction) {
   const { id } = req.params;
   const { userId } = req;
-  
+
   try {
     const post = await postsService.getPost(parseInt(id) || 0, userId);
     if (!post) return res.sendStatus(404);
