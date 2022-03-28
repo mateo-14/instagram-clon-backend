@@ -9,13 +9,13 @@ type PrismaPost = Post & {
   likes?: Like[];
 };
 
-const prismaPostToUserPost = (post: PrismaPost, userId?: number): UserPost => ({
+const prismaPostToUserPost = (post: PrismaPost, clientId?: number): UserPost => ({
   id: post.id,
   text: post.text,
   createdAt: post.createdAt,
   author: { ...post.author, profileImage: post.author.profileImage?.url },
   images: post.images?.map((image) => image.url),
   _count: post._count || { likes: 0, comments: 0 },
-  hasClientLike: post.likes && userId ? post.likes.some((like) => like.userId === userId) : undefined,
+  hasClientLike: post.likes && clientId ? post.likes.some((like) => like.userId === clientId) : undefined,
 });
 export default prismaPostToUserPost;
