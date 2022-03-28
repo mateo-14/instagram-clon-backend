@@ -2,11 +2,24 @@ import DuplicateUsernameError from 'common/exceptions/DuplicateUsernameError';
 import CustomUser from 'common/models/CustomUser';
 import { NextFunction, Request, Response } from 'express';
 import * as usersService from './users.service';
+import * as postsService from 'posts/posts.service';
 
-export async function getUser(req: Request, res: Response, next: NextFunction) {
+export async function getUserByUsername(req: Request, res: Response, next: NextFunction) {
+  const { username } = req.params;
+  try {
+    const user: CustomUser | null = await usersService.getUserByUsername(username);
+    if (!user) return res.sendStatus(404);
+
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getUserById(req: Request, res: Response, next: NextFunction) {
   const { id } = req.params;
   try {
-    const user: CustomUser | null = await usersService.getUserById(parseInt(id) || 0);
+    const user: CustomUser | null = await usersService.getUserById(parseInt(id));
     if (!user) return res.sendStatus(404);
 
     res.json(user);
@@ -66,4 +79,19 @@ export async function removeClientFollow(req: Request, res: Response, next: Next
 export async function removeClientFollower(req: Request, res: Response, next: NextFunction) {
   // TODO: Add remove followers to req.userId user
   res.sendStatus(501);
+}
+
+export async function getUserPosts(req: Request, res: Response, next: NextFunction) {
+  try {
+    const posts = await postsService.getUserPosts(
+      parseInt(req.params.id),
+      parseInt(req.query.last?.toString() || '')
+    );
+
+    if (!posts) return res.sendStatus(404);
+
+    res.json(posts);
+  } catch (err) {
+    next(err);
+  }
 }

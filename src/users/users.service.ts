@@ -147,3 +147,21 @@ export async function getUnsafeUser(where: any): Promise<UnsafeCustomUser | null
 
   return { ...prismaUserToUser(user), password: user.password };
 }
+
+export async function getUserByUsername(username: string): Promise<CustomUser | null> {
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: {
+      id: true,
+      displayName: true,
+      username: true,
+      bio: true,
+      profileImage: { select: { url: true } },
+      _count: { select: { posts: true, followedBy: true, following: true } },
+    },
+  });
+
+  if (!user) return null;
+
+  return prismaUserToUser(user);
+}
