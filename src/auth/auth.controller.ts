@@ -45,3 +45,14 @@ export async function auth(req: Request, res: Response) {
     return res.sendStatus(401);
   }
 }
+
+export async function loginWithTestAccount(_: Request, res: Response) {
+  try {
+    const user: AuthUser | null = await authService.loginWithATestAccount();
+    if (!user) return res.sendStatus(401);
+
+    res.json(user);
+  } catch (err) {
+    return res.sendStatus(401);
+  }
+}

@@ -62,3 +62,12 @@ export async function auth(token: string): Promise<AuthUser | null> {
   user.password = undefined!;
   return { ...user, token: newToken };
 }
+
+export async function loginWithATestAccount(): Promise<AuthUser | null> {
+  const user: UnsafeCustomUser | null = await getUnsafeUser({ username: 'admin' });
+  if (!user) return null;
+
+  const token: string = await jwtService.generateToken(user.id);
+  user.password = undefined!;
+  return { ...user, token };
+}
