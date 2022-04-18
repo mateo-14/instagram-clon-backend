@@ -24,10 +24,10 @@ export async function addComment(req: Request, res: Response, next: NextFunction
 
 export async function getComments(req: Request, res: Response, next: NextFunction) {
   const { query, userId } = req;
-  if (userId) return res.sendStatus(401);
+  if (!userId) return res.sendStatus(401);
 
   const { post, last, replied } = query;
-
+  
   try {
     if (!post || isNaN(parseInt(post.toString()))) return res.sendStatus(400);
 
@@ -35,7 +35,7 @@ export async function getComments(req: Request, res: Response, next: NextFunctio
       parseInt(post.toString()),
       parseInt(last?.toString() || '') || 0,
       parseInt(replied?.toString() || '') || undefined,
-      req.userId
+      userId
     );
     res.json(comments);
   } catch (err) {
