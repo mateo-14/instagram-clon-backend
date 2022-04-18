@@ -21,7 +21,7 @@ router.patch(
   updateValidator,
   udpateClientProfile
 );
-router.get('/profiles/:username', getUserByUsername);
+router.get('/profiles/:username', verifyJwtMiddleware, getUserByUsername);
 router.get('/:id', verifyJwtMiddleware, getUserById);
 router.put('/:id/followers', verifyJwtMiddleware, addClientFollow);
 router.delete('/:id/followers', verifyJwtMiddleware, removeClientFollow);

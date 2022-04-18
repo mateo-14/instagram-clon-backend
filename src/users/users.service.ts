@@ -148,7 +148,10 @@ export async function getUnsafeUser(where: any): Promise<UnsafeCustomUser | null
   return { ...prismaUserToUser(user), password: user.password };
 }
 
-export async function getUserByUsername(username: string): Promise<CustomUser | null> {
+export async function getUserByUsername(
+  username: string,
+  clientId?: number
+): Promise<CustomUser | null> {
   const user = await prisma.user.findUnique({
     where: { username },
     select: {
@@ -158,10 +161,11 @@ export async function getUserByUsername(username: string): Promise<CustomUser | 
       bio: true,
       profileImage: { select: { url: true } },
       _count: { select: { posts: true, followedBy: true, following: true } },
+      followedBy: { where: { id: clientId }, select: { id: true } },
     },
   });
 
   if (!user) return null;
 
-  return prismaUserToUser(user);
+  return prismaUserToUser(user, clientId);
 }

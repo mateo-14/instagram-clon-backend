@@ -5,9 +5,11 @@ import * as usersService from './users.service';
 import * as postsService from 'posts/posts.service';
 
 export async function getUserByUsername(req: Request, res: Response, next: NextFunction) {
+  const { userId } = req;
   const { username } = req.params;
+  
   try {
-    const user: CustomUser | null = await usersService.getUserByUsername(username);
+    const user: CustomUser | null = await usersService.getUserByUsername(username, userId);
     if (!user) return res.sendStatus(404);
 
     res.json(user);

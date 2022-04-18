@@ -5,10 +5,10 @@ export default interface UserPost {
   createdAt: Date;
   text: string;
   images: string[];
-  author: CustomUser;
+  author: Omit<CustomUser, 'followedByClient'>;
   _count: {
     comments: number;
     likes: number;
   };
-  hasClientLike?: boolean;
+  hasClientLike: boolean;
 }

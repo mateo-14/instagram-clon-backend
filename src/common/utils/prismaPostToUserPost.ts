@@ -1,4 +1,4 @@
-import { File, Post, PostLike } from '@prisma/client';
+import { File, Post } from '@prisma/client';
 import Like from 'common/models/Like';
 import UserPost from 'common/models/UserPost';
 
@@ -16,6 +16,6 @@ const prismaPostToUserPost = (post: PrismaPost, clientId?: number): UserPost => 
   author: { ...post.author, profileImage: post.author.profileImage?.url },
   images: post.images?.map((image) => image.url),
   _count: post._count || { likes: 0, comments: 0 },
-  hasClientLike: post.likes && clientId ? post.likes.some((like) => like.userId === clientId) : undefined,
+  hasClientLike: post.likes?.some((like) => like.userId === clientId) || false,
 });
 export default prismaPostToUserPost;
