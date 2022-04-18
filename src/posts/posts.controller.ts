@@ -3,10 +3,10 @@ import * as postsService from './posts.service';
 
 export async function createPost(req: Request, res: Response, next: NextFunction) {
   if (!(req.files instanceof Array)) return res.sendStatus(400);
-  const { text } = req.body;
+  const { userId, files, body } = req;
 
   try {
-    const post = await postsService.createPost(req.files, text, req.userId);
+    const post = await postsService.createPost(files, body.text, userId);
     res.status(201).json(post);
   } catch (err) {
     next(err); // Pass error to handle errors middleware
