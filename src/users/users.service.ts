@@ -72,41 +72,8 @@ export async function updateUser(
     username?: string;
     displayName?: string;
     bio?: string;
-    image?: Express.Multer.File;
   }
 ): Promise<CustomUser | null> {
-  const user = await prisma.user.findUnique({
-    where: { id },
-    select: { profileImage: { select: { key: true } } },
-  });
-
-  if (!user) return null;
-
-  const newData: any = {
-    username: data.username,
-    displayName: data.displayName,
-    bio: data.bio,
-  };
-
-  if (data.image) {
-    if (user.profileImage) await fileStorageRepository.deleteMany([user.profileImage?.key]);
-
-    try {
-      const imageKey = `users/${id}/profile${path.extname(data.image.originalname)}`;
-      await fileStorageRepository.upload({
-        file: data.image,
-        key: imageKey,
-      });
-
-      const imageUrl =
-        supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(imageKey).publicURL || '';
-
-      newData.profileImage = { create: { key: imageKey, url: imageUrl } };
-    } catch (err) {
-      throw err;
-    }
-  }
-
   try {
     const updatedUser = await prisma.user.update({
       where: { id },
@@ -117,8 +84,13 @@ export async function updateUser(
         bio: true,
         profileImage: { select: { url: true } },
       },
-      data: newData,
+      data: {
+        username: data.username,
+        displayName: data.displayName,
+        bio: data.bio,
+      },
     });
+
     return prismaUserToUser(updatedUser);
   } catch (err) {
     if (err instanceof PrismaClientKnownRequestError) {
@@ -168,4 +140,49 @@ export async function getUserByUsername(
   if (!user) return null;
 
   return prismaUserToUser(user, clientId);
+}
+
+export async function updatePhoto(
+  userId: number,
+  image: Express.Multer.File
+): Promise<Pick<CustomUser, 'id' | 'profileImage'> | null> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { profileImage: { select: { key: true, id: true } } },
+  });
+
+  if (!user) return null;
+
+  if (user.profileImage) await fileStorageRepository.deleteMany([user.profileImage?.key]);
+
+  try {
+    const imageKey = `users/${userId}/${Date.now()}${path.extname(image.originalname)}`;
+    await fileStorageRepository.upload({
+      file: image,
+      key: imageKey,
+    });
+
+    const imageUrl =
+      supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(imageKey).publicURL || '';
+
+    if (user.profileImage) {
+      await prisma.file.update({
+        where: { id: user.profileImage.id },
+        data: { url: imageUrl, key: imageKey },
+      });
+    } else {
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          profileImage: {
+            create: { url: imageUrl, key: imageKey },
+          },
+        },
+      });
+    }
+
+    return { id: userId, profileImage: imageUrl };
+  } catch (err) {
+    throw err;
+  }
 }

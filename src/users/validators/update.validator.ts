@@ -8,6 +8,9 @@ export default [
     .optional()
     .isLength({ min: 3, max: 25 })
     .withMessage('Username must be 3 to 25 characters long'),
-  body('displayName').trim().optional(),
+  body('displayName')
+    .trim()
+    .isLength({ min: 0, max: 60 })
+    .withMessage('Max name length is 60 characters'),
   validatorMiddleware,
 ];

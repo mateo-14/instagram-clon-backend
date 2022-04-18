@@ -32,20 +32,17 @@ export async function getUserById(req: Request, res: Response, next: NextFunctio
 }
 
 export async function udpateClientProfile(req: Request, res: Response, next: NextFunction) {
-  const { userId, body, file } = req;
+  const { userId, body } = req;
   if (!userId) return res.sendStatus(401);
 
   try {
-    const updatedUser: CustomUser | null = await usersService.updateUser(userId, {
-      ...body,
-      image: file,
-    });
+    const updatedUser: CustomUser | null = await usersService.updateUser(userId, body);
 
     if (!updatedUser) return res.sendStatus(404);
     res.json(updatedUser);
   } catch (err) {
     if (err instanceof DuplicateUsernameError)
-      return res.status(400).json({ error: { msg: err.message } });
+      return res.status(400).json({ errors: { username: err.message } });
 
     next(err);
   }
@@ -99,6 +96,21 @@ export async function getUserPosts(req: Request, res: Response, next: NextFuncti
     if (!posts) return res.sendStatus(404);
 
     res.json(posts);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateClientPhoto(req: Request, res: Response, next: NextFunction) {
+  const { userId, file } = req;
+  if (!userId) return res.sendStatus(401);
+  if (!file) return res.sendStatus(400);
+
+  try {
+    const data = await usersService.updatePhoto(userId, file);
+    if (!data) return res.sendStatus(404);
+
+    res.json(data);
   } catch (err) {
     next(err);
   }
