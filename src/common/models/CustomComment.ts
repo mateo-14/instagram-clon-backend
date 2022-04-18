@@ -5,7 +5,7 @@ export default interface CustomComment {
   postId: number;
   createdAt: Date;
   text: string;
-  author: CustomUser;
+  author:  Omit<CustomUser, 'followedByClient'>;
   _count: {
     likes: number;
     replies: number;
