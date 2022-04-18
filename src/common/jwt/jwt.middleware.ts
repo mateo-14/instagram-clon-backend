@@ -1,6 +1,7 @@
 import extractAuthToken from 'common/utils/extractAuthToken';
-import { NextFunction, Request, Response } from 'express';
+import type { NextFunction, Response } from 'express';
 import { verifyToken } from './jwt.service';
+import type { Request } from '../../..';
 
 export default async function verifyJwtMiddleware(req: Request, res: Response, next: NextFunction) {
   const token = extractAuthToken(req.headers.authorization as string);

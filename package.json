@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "NODE_PATH=./src ts-node-dev --respawn --pretty --transpile-only --exit-child ./src/index.ts",
+    "dev": "NODE_PATH=./src ts-node-dev ./src/index.ts",
     "build": "tsc && npx prisma migrate deploy",
     "start": "NODE_PATH=./dist node ./dist/index.js"
   },

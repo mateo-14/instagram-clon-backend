@@ -1,4 +1,4 @@
-import CustomUser from './CustomUser';
+import type CustomUser from './CustomUser';
 
 export default interface UserPost {
   id: number;

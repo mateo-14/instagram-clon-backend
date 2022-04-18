@@ -1,12 +1,14 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import * as postsService from './posts.service';
+import type { Request } from '../..';
 
 export async function createPost(req: Request, res: Response, next: NextFunction) {
   if (!(req.files instanceof Array)) return res.sendStatus(400);
   const { userId, files, body } = req;
+  if (!userId) return res.sendStatus(401);
 
   try {
-    const post = await postsService.createPost(files, body.text, userId);
+    const post = await postsService.createPost(files, body.text, userId!);
     res.status(201).json(post);
   } catch (err) {
     next(err); // Pass error to handle errors middleware
@@ -15,6 +17,7 @@ export async function createPost(req: Request, res: Response, next: NextFunction
 
 export async function deletePost(req: Request, res: Response, next: NextFunction) {
   const { userId, params } = req;
+  if (!userId) return res.sendStatus(401);
 
   try {
     const found = await postsService.deletePost(parseInt(params.id) || 0, userId);
@@ -28,6 +31,7 @@ export async function deletePost(req: Request, res: Response, next: NextFunction
 
 export async function addLike(req: Request, res: Response, next: NextFunction) {
   const { userId, params } = req;
+  if (!userId) return res.sendStatus(401);
 
   try {
     const found = await postsService.addLike(parseInt(params.id) || 0, userId);
@@ -41,6 +45,7 @@ export async function addLike(req: Request, res: Response, next: NextFunction) {
 
 export async function removeLike(req: Request, res: Response, next: NextFunction) {
   const { userId, params } = req;
+  if (!userId) return res.sendStatus(401);
 
   try {
     const found = await postsService.removeLike(parseInt(params.id) || 0, userId);
@@ -53,6 +58,7 @@ export async function removeLike(req: Request, res: Response, next: NextFunction
 
 export async function getFeedPosts(req: Request, res: Response, next: NextFunction) {
   const { userId, query } = req;
+  if (!userId) return res.sendStatus(401);
 
   try {
     const posts = await postsService.getFeedPosts(userId, parseInt(query.last?.toString() || ''));

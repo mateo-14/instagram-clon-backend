@@ -1,14 +1,18 @@
 import CustomComment from 'common/models/CustomComment';
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import * as commentsService from './comments.service';
-
+import type { Request } from '../..';
 export async function addComment(req: Request, res: Response, next: NextFunction) {
-  const { text, commentRepliedId, postId } = req.body;
+  const { userId, body } = req;
+  if (!userId) return res.sendStatus(401);
+
+  const { text, commentRepliedId, postId } = body;
+
   try {
     const comment: null | CustomComment = await commentsService.createComment(
       parseInt(postId),
       text,
-      req.userId,
+      userId,
       commentRepliedId
     );
     if (!comment) return res.sendStatus(404);
@@ -19,7 +23,11 @@ export async function addComment(req: Request, res: Response, next: NextFunction
 }
 
 export async function getComments(req: Request, res: Response, next: NextFunction) {
-  const { post, last, replied } = req.query;
+  const { query, userId } = req;
+  if (userId) return res.sendStatus(401);
+
+  const { post, last, replied } = query;
+
   try {
     if (!post || isNaN(parseInt(post.toString()))) return res.sendStatus(400);
 
@@ -37,6 +45,7 @@ export async function getComments(req: Request, res: Response, next: NextFunctio
 
 export async function deleteComment(req: Request, res: Response, next: NextFunction) {
   const { userId, params } = req;
+  if (!userId) return res.sendStatus(401);
 
   try {
     const found = await commentsService.deleteComment(parseInt(params.id) || 0, userId);
@@ -50,6 +59,7 @@ export async function deleteComment(req: Request, res: Response, next: NextFunct
 
 export async function addLike(req: Request, res: Response, next: NextFunction) {
   const { userId, params } = req;
+  if (!userId) return res.sendStatus(401);
 
   try {
     const found = await commentsService.addLike(parseInt(params.id) || 0, userId);
@@ -63,6 +73,7 @@ export async function addLike(req: Request, res: Response, next: NextFunction) {
 
 export async function removeLike(req: Request, res: Response, next: NextFunction) {
   const { userId, params } = req;
+  if (!userId) return res.sendStatus(401);
 
   try {
     const found = await commentsService.removeLike(parseInt(params.id) || 0, userId);
