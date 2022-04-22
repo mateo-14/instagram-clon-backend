@@ -87,10 +87,13 @@ export async function removeClientFollower(req: Request, res: Response, next: Ne
 }
 
 export async function getUserPosts(req: Request, res: Response, next: NextFunction) {
+  const { userId } = req;
+
   try {
     const posts = await postsService.getUserPosts(
       parseInt(req.params.id),
-      parseInt(req.query.last?.toString() || '')
+      parseInt(req.query.last?.toString() || ''),
+      userId
     );
 
     if (!posts) return res.sendStatus(404);

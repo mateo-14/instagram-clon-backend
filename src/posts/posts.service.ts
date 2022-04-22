@@ -153,14 +153,11 @@ export async function getFeedPosts(clientId: number, last?: number): Promise<Use
   return posts;
 }
 
-export async function getUserPosts(userId: number, last?: number): Promise<UserPost[] | null> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true },
-  });
-
-  if (!user) return null;
-
-  const posts = await getPosts({ authorId: userId }, last, undefined, 12);
+export async function getUserPosts(
+  userId: number,
+  last?: number,
+  clientId?: number
+): Promise<UserPost[] | null> {
+  const posts = await getPosts({ authorId: userId }, last, clientId, 12);
   return posts;
 }
