@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "NODE_PATH=./src ts-node-dev --exit-child ./src/index.ts",
-    "build": "tsc && npx prisma migrate deploy",
+    "build": "npx prisma migrate deploy && tsc",
     "start": "NODE_PATH=./dist node ./dist/index.js",
     "test": "NODE_PATH=./src jest"
   },
