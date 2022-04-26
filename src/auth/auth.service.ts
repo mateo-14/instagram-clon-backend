@@ -6,7 +6,6 @@ import InvalidPasswordError from './exceptions/InvalidPasswordError';
 import prismaUserToUser from 'common/utils/prismaUserToUser';
 import * as jwtService from 'common/jwt/jwt.service';
 import { AuthUser } from 'common/models/AuthUser';
-import { getUnsafeUser } from 'users/users.service';
 import UnsafeCustomUser from 'common/models/UnsafeCustomUser';
 
 export async function createUser(
@@ -39,6 +38,18 @@ export async function createUser(
   }
 }
 
+async function getUnsafeUser(where: any): Promise<UnsafeCustomUser | null> {
+  const user = await prisma.user.findUnique({
+    where,
+    select: { password: true, id: true },
+  });
+
+  console.log(user);
+  if (!user) return null;
+
+  return { id: user.id, password: user.password };
+}
+
 export async function login(username: string, password: string): Promise<AuthUser | null> {
   const user: UnsafeCustomUser | null = await getUnsafeUser({ username });
   if (!user) return null;
@@ -64,10 +75,13 @@ export async function auth(token: string): Promise<AuthUser | null> {
 }
 
 export async function loginWithATestAccount(): Promise<AuthUser | null> {
-  const user: UnsafeCustomUser | null = await getUnsafeUser({ username: 'admin' });
+  const user = await prisma.user.findFirst({
+    where: { isTestAccount: true },
+    select: { id: true },
+  });
   if (!user) return null;
 
   const token: string = await jwtService.generateToken(user.id);
-  user.password = undefined!;
+
   return { ...user, token };
 }

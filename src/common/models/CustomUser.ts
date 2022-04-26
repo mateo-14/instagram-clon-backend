@@ -5,5 +5,6 @@ export default interface CustomUser {
   profileImage?: string;
   bio?: string;
   _count?: { following: number; followedBy: number; posts: number };
-  followedByClient: boolean;
+  followedByClient?: boolean;
+  isTestAccount?: boolean;
 }

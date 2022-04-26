@@ -7,7 +7,6 @@ import supabaseClient, { BUCKET_NAME } from 'common/supabaseClient';
 import CustomUser from 'common/models/CustomUser';
 import prismaUserToUser from 'common/utils/prismaUserToUser';
 import DuplicateUsernameError from 'common/exceptions/DuplicateUsernameError';
-import UnsafeCustomUser from 'common/models/UnsafeCustomUser';
 
 const fileStorageRepository: FileStorage = FileStorageRepository;
 
@@ -20,6 +19,7 @@ export async function getUserById(id: number): Promise<CustomUser | null> {
       username: true,
       bio: true,
       profileImage: { select: { url: true } },
+      isTestAccount: true,
       _count: { select: { posts: true, followedBy: true, following: true } },
     },
   });
@@ -27,6 +27,29 @@ export async function getUserById(id: number): Promise<CustomUser | null> {
   if (!user) return null;
 
   return prismaUserToUser(user);
+}
+
+
+export async function getUserByUsername(
+  username: string,
+  clientId?: number
+): Promise<CustomUser | null> {
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: {
+      id: true,
+      displayName: true,
+      username: true,
+      bio: true,
+      profileImage: { select: { url: true } },
+      _count: { select: { posts: true, followedBy: true, following: true } },
+      followedBy: { where: { id: clientId }, select: { id: true } },
+    },
+  });
+
+  if (!user) return null;
+
+  return prismaUserToUser(user, clientId);
 }
 
 export async function addFollower(id: number, followerId: number): Promise<boolean> {
@@ -102,44 +125,6 @@ export async function updateUser(
     }
     throw err;
   }
-}
-
-export async function getUnsafeUser(where: any): Promise<UnsafeCustomUser | null> {
-  const user = await prisma.user.findUnique({
-    where,
-    include: {
-      _count: {
-        select: { posts: true, followedBy: true, following: true },
-      },
-      profileImage: { select: { url: true } },
-    },
-  });
-
-  if (!user) return null;
-
-  return { ...prismaUserToUser(user), password: user.password };
-}
-
-export async function getUserByUsername(
-  username: string,
-  clientId?: number
-): Promise<CustomUser | null> {
-  const user = await prisma.user.findUnique({
-    where: { username },
-    select: {
-      id: true,
-      displayName: true,
-      username: true,
-      bio: true,
-      profileImage: { select: { url: true } },
-      _count: { select: { posts: true, followedBy: true, following: true } },
-      followedBy: { where: { id: clientId }, select: { id: true } },
-    },
-  });
-
-  if (!user) return null;
-
-  return prismaUserToUser(user, clientId);
 }
 
 export async function updatePhoto(

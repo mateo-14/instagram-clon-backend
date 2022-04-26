@@ -53,6 +53,6 @@ export async function loginWithTestAccount(_: Request, res: Response) {
 
     res.json(user);
   } catch (err) {
-    return res.sendStatus(401);
+    return res.sendStatus(500);
   }
 }

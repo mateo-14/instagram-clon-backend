@@ -36,6 +36,9 @@ export async function udpateClientProfile(req: Request, res: Response, next: Nex
   if (!userId) return res.sendStatus(401);
 
   try {
+    const user = await usersService.getUserById(userId);
+    if (user?.isTestAccount) return res.sendStatus(403);
+
     const updatedUser: CustomUser | null = await usersService.updateUser(userId, body);
 
     if (!updatedUser) return res.sendStatus(404);
@@ -110,6 +113,9 @@ export async function updateClientPhoto(req: Request, res: Response, next: NextF
   if (!file) return res.sendStatus(400);
 
   try {
+    const user = await usersService.getUserById(userId);
+    if (user?.isTestAccount) return res.sendStatus(403);
+
     const data = await usersService.updatePhoto(userId, file);
     if (!data) return res.sendStatus(404);
 

@@ -1,5 +1,4 @@
-import type CustomUser from "./CustomUser";
-
-export interface AuthUser extends CustomUser {
-  token: string
+export interface AuthUser {
+  id: number;
+  token: string;
 }

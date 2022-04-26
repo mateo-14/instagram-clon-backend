@@ -11,20 +11,21 @@ datasource db {
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
-  username     String        @unique
-  password     String
-  displayName  String?
-  bio          String?
-  profileImage File?         @relation(fields: [imageId], references: [id], onDelete: Cascade)
-  createdAt    DateTime      @default(now())
-  posts        Post[]
-  comments     Comment[]
-  postLikes    PostLike[]
-  commentLikes CommentLike[]
-  imageId      Int?
-  followedBy   User[]        @relation("UserFollows", references: [id])
-  following    User[]        @relation("UserFollows", references: [id])
+  id            Int           @id @default(autoincrement())
+  username      String        @unique
+  password      String
+  displayName   String?
+  bio           String?
+  profileImage  File?         @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+  posts         Post[]
+  comments      Comment[]
+  postLikes     PostLike[]
+  commentLikes  CommentLike[]
+  imageId       Int?
+  followedBy    User[]        @relation("UserFollows", references: [id])
+  following     User[]        @relation("UserFollows", references: [id])
+  isTestAccount Boolean       @default(false)
 }
 
 model Post {
@@ -44,7 +45,7 @@ model Comment {
   author           User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId         Int
   text             String
-  post             Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post             Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId           Int
   replies          Comment[]     @relation("CommentToComment")
   commentReplied   Comment?      @relation("CommentToComment", fields: [commentRepliedId], references: [id], onDelete: Cascade)
