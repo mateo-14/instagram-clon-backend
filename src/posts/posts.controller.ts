@@ -20,7 +20,7 @@ export async function deletePost(req: Request, res: Response, next: NextFunction
   if (!userId) return res.sendStatus(401);
 
   try {
-    const found = await postsService.deletePost(parseInt(params.id) || 0, userId);
+    const found = await postsService.deletePost(parseInt(params.id), userId);
     if (!found) return res.sendStatus(404);
 
     res.sendStatus(204);
@@ -34,7 +34,7 @@ export async function addLike(req: Request, res: Response, next: NextFunction) {
   if (!userId) return res.sendStatus(401);
 
   try {
-    const found = await postsService.addLike(parseInt(params.id) || 0, userId);
+    const found = await postsService.addLike(parseInt(params.id), userId);
     if (!found) return res.sendStatus(404);
 
     res.sendStatus(204);
@@ -48,7 +48,7 @@ export async function removeLike(req: Request, res: Response, next: NextFunction
   if (!userId) return res.sendStatus(401);
 
   try {
-    const found = await postsService.removeLike(parseInt(params.id) || 0, userId);
+    const found = await postsService.removeLike(parseInt(params.id), userId);
     if (!found) return res.sendStatus(404);
     res.sendStatus(204);
   } catch (err) {
@@ -73,10 +73,22 @@ export async function getPost(req: Request, res: Response, next: NextFunction) {
   const { userId } = req;
 
   try {
-    const post = await postsService.getPost(parseInt(id) || 0, userId);
+    const post = await postsService.getPost(parseInt(id), userId);
     if (!post) return res.sendStatus(404);
 
     res.json(post);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getLikes(req: Request, res: Response, next: NextFunction) {
+  const { id } = req.params;
+  const { last } = req.query;
+
+  try {
+    const likes = await postsService.getLikes(parseInt(id), parseInt(last?.toString() || ''));
+    res.json(likes);
   } catch (err) {
     next(err);
   }

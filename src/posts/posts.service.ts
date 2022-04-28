@@ -6,6 +6,8 @@ import prisma from 'common/prismaClient';
 import path from 'path';
 import supabaseClient, { BUCKET_NAME } from 'common/supabaseClient';
 import prismaPostToUserPost from 'common/utils/prismaPostToUserPost';
+import prismaUserToUser from 'common/utils/prismaUserToUser';
+import CustomUser from 'common/models/CustomUser';
 
 const fileStorageRepository: FileStorage = FileStorageRepository;
 
@@ -160,4 +162,25 @@ export async function getUserPosts(
 ): Promise<UserPost[] | null> {
   const posts = await getPosts({ authorId: userId }, last, clientId, 12);
   return posts;
+}
+
+export async function getLikes(id: number, last?: number): Promise<CustomUser[]> {
+  const likes = await prisma.postLike.findMany({
+    where: { postId: id },
+    select: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+          profileImage: { select: { url: true } },
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+    cursor: last ? { userId_postId: { postId: id, userId: last } } : undefined,
+    skip: last ? 1 : 0,
+    take: 14,
+  });
+  return likes.map((like) => prismaUserToUser(like.user));
 }

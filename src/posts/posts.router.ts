@@ -5,6 +5,7 @@ import {
   createPost,
   deletePost,
   getFeedPosts,
+  getLikes,
   getPost,
   removeLike,
 } from './posts.controller';
@@ -28,5 +29,6 @@ router.post(
 router.delete('/:id', verifyJwtMiddleware(), deletePost);
 router.put('/:id/likes', verifyJwtMiddleware(), addLike);
 router.delete('/:id/likes', verifyJwtMiddleware(), removeLike);
+router.get('/:id/likes', verifyJwtMiddleware(), getLikes);
 
 export default router;
