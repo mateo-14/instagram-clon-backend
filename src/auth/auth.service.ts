@@ -44,7 +44,6 @@ async function getUnsafeUser(where: any): Promise<UnsafeCustomUser | null> {
     select: { password: true, id: true },
   });
 
-  console.log(user);
   if (!user) return null;
 
   return { id: user.id, password: user.password };
