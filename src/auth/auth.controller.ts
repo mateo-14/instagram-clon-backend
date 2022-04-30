@@ -26,7 +26,7 @@ export async function signup(req: Request, res: Response, next: NextFunction) {
     res.json(user);
   } catch (err) {
     if (err instanceof DuplicateUsernameError)
-      return res.status(400).json({ errors: { error: err.message } });
+      return res.status(400).json({ errors: { username: err.message } });
 
     next(err);
   }
