@@ -20,7 +20,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginUser'
+              $ref: '#/components/schemas/LoginBody'
       responses:
         '200':
           $ref: '#/components/responses/SuccessAuth'
@@ -46,7 +46,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SignUpUser'
+              $ref: '#/components/schemas/SignupBody'
       responses:
         '200':
           $ref: '#/components/responses/SuccessAuth'
@@ -86,7 +86,7 @@ paths:
     get:  
       tags:
         - users
-      description: Get user by id
+      description: Get user by id.
       parameters:
       -   
         name: id
@@ -114,7 +114,7 @@ paths:
    get:  
       tags:
         - users
-      description: Get user by username
+      description: Get user by username.
       parameters:
       -   
         name: username
@@ -146,7 +146,7 @@ paths:
         schema:
           type: integer     
     put:
-      description: Add new follower to user
+      description: Add new follower to user.
       tags:
         - users
       responses:
@@ -159,7 +159,7 @@ paths:
       security:
         - bearerAuth: []
     delete:
-      description: Remove user follower
+      description: Remove user follower.
       tags:
         - users
       responses:
@@ -173,7 +173,7 @@ paths:
         - bearerAuth: []
   /users/me:
     patch:
-      description: Update user profile
+      description: Update user profile.
       tags:
         - users
       requestBody:
@@ -197,7 +197,7 @@ paths:
         - bearerAuth: []
   /users/me/photo:
     put:
-      description: Upload and update user photo
+      description: Upload and update user photo.
       requestBody:
         required: true
         content:
@@ -220,7 +220,7 @@ paths:
 
   /posts/feed:
     get:
-      description: Get feed posts sorted by date
+      description: Get feed posts sorted by date.
       parameters:
         - 
           name: last
@@ -255,7 +255,7 @@ paths:
     get: 
       tags:
         - posts
-      description: Get post by id
+      description: Get post by ID.
       responses:
         '200':
           description: Feed posts array
@@ -285,7 +285,7 @@ paths:
     get:
       tags:
         - posts
-      description: Get posts filtered by user and sorted by date
+      description: Get posts filtered by user and sorted by date.
       parameters:
         - 
           name: author
@@ -317,7 +317,7 @@ paths:
     post:
       tags:
         - posts
-      description: Create a new post
+      description: Create a new post. The authenticated user will be the author.
       requestBody:
         required: true
         content:
@@ -327,7 +327,7 @@ paths:
               
       responses:
         '200':
-          description: Created post
+          description: Post created
           content:
             application/json:
               schema:
@@ -355,7 +355,7 @@ paths:
     get:
       tags:
         - posts
-      description: 'Get users who liked the post'
+      description: Get users who liked the post.
       parameters:
       - 
         name: last
@@ -365,7 +365,7 @@ paths:
           type: integer
       responses:
         '200':
-          description: 'Users array'
+          description: Users array
           content:
             application/json:
               schema:
@@ -381,7 +381,7 @@ paths:
     put:
       tags:
         - posts
-      description: 'Add client (authenticated user) like'
+      description: Add client (authenticated user) like.
       responses:
         '204':
           description: 'Liked added successfully'
@@ -394,7 +394,7 @@ paths:
     delete:
       tags:
         - posts
-      description: 'Remove client (authenticated user) like'
+      description: Remove client (authenticated user) like.
       responses:
         '204':
           description: 'Liked removed successfully'
@@ -409,7 +409,7 @@ paths:
     post:
       tags:
         - comments
-      description: 'Add comment to post'
+      description: Add comment to post. The authenticated user will be the author.
       requestBody: 
         required: true
         content:
@@ -418,7 +418,7 @@ paths:
               $ref: '#/components/schemas/CommentBody'
       responses:
         '200':
-          description: 'Comment added successfully'
+          description: Comment added successfully
           content:
             application/json:
               schema: 
@@ -432,7 +432,7 @@ paths:
     get:
       tags:
         - comments
-      description: 'Get post comments sorted by date'
+      description: Get post comments sorted by date.
       parameters:
         - 
           name: post
@@ -449,7 +449,7 @@ paths:
             type: integer
       responses:
         '200':
-          description: 'Post comments array'
+          description: Post comments array
           content:
             application/json:
               schema: 
@@ -477,7 +477,7 @@ paths:
       description: Delete comment. If authenticated user isn't the author, the response status will be 401.
       responses:
         '204':
-          description: 'Comment deleted successfully'
+          description: Comment deleted successfully
         '404':
           description: Comment not found
         '401':
@@ -496,10 +496,10 @@ paths:
     put:
       tags:
         - comments
-      description: 'Add client (authenticated user) like'
+      description: Add client (authenticated user) like.
       responses:
         '204':
-          description: 'Liked added successfully'
+          description: Liked added successfully
         '404':
           description: Comment not found
         '401':
@@ -509,10 +509,10 @@ paths:
     delete:
       tags:
         - comments
-      description: 'Remove client (authenticated user) like'
+      description: Remove client (authenticated user) like.
       responses:
         '204':
-          description: 'Liked removed successfully'
+          description: Liked removed successfully
         '404':
           description: Comment not found
         '401':
@@ -528,7 +528,7 @@ components:
       properties:
         errors:
           type: object
-    LoginUser:
+    LoginBody:
       type: object
       required:
         - username
@@ -538,7 +538,7 @@ components:
           type: string
         password: 
           type: string
-    SignUpUser:
+    SignupBody:
       type: object
       required:
         - username
@@ -562,8 +562,10 @@ components:
       properties:
         id: 
           type: integer
+          description: User ID
         profileImage:
           type: string
+          description: New profile image URL
     User:
       properties:
         id: 
@@ -623,7 +625,7 @@ components:
           items: 
             type: string
         author:
-          $ref: '#/components/schemas/User'
+          $ref: '#/components/schemas/AuthorUser'
         _count: 
           type: object
           properties:       
@@ -656,7 +658,7 @@ components:
         text: 
           type: string
         author:  
-          $ref: '#/components/schemas/User'
+          $ref: '#/components/schemas/AuthorUser'
         _count: 
           type: object
           properties:
@@ -668,19 +670,25 @@ components:
           type: boolean
         commentRepliedId: 
           type: integer
+    AuthorUser:
+      type: object
+      properties:
+        id: 
+          type: integer
+        username: 
+          type: string
+        profileImage: 
+          type: string
     CommentBody: 
       type: object
       required:
         - postId
         - text
-        - authorId
       properties:
         postId: 
           type: integer
         text: 
           type: string
-        authorId: 
-          type: integer
   securitySchemes:
     bearerAuth:         
       type: http

@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "https://ig-clon-backend.herokuapp.com/api",
+      "url": "https://api.server.test/v1",
       "description": "Production server"
     },
     {
@@ -29,7 +29,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginUser"
+                "$ref": "#/components/schemas/LoginBody"
               }
             }
           }
@@ -72,7 +72,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SignUpUser"
+                "$ref": "#/components/schemas/SignupBody"
               }
             }
           }
@@ -146,7 +146,7 @@
         "tags": [
           "users"
         ],
-        "description": "Get user by id",
+        "description": "Get user by id.",
         "parameters": [
           {
             "name": "id",
@@ -188,7 +188,7 @@
         "tags": [
           "users"
         ],
-        "description": "Get user by username",
+        "description": "Get user by username.",
         "parameters": [
           {
             "name": "username",
@@ -238,7 +238,7 @@
         }
       ],
       "put": {
-        "description": "Add new follower to user",
+        "description": "Add new follower to user.",
         "tags": [
           "users"
         ],
@@ -260,7 +260,7 @@
         ]
       },
       "delete": {
-        "description": "Remove user follower",
+        "description": "Remove user follower.",
         "tags": [
           "users"
         ],
@@ -284,7 +284,7 @@
     },
     "/users/me": {
       "patch": {
-        "description": "Update user profile",
+        "description": "Update user profile.",
         "tags": [
           "users"
         ],
@@ -325,7 +325,7 @@
     },
     "/users/me/photo": {
       "put": {
-        "description": "Upload and update user photo",
+        "description": "Upload and update user photo.",
         "requestBody": {
           "required": true,
           "content": {
@@ -363,7 +363,7 @@
     },
     "/posts/feed": {
       "get": {
-        "description": "Get feed posts sorted by date",
+        "description": "Get feed posts sorted by date.",
         "parameters": [
           {
             "name": "last",
@@ -418,7 +418,7 @@
         "tags": [
           "posts"
         ],
-        "description": "Get post by id",
+        "description": "Get post by ID.",
         "responses": {
           "200": {
             "description": "Feed posts array",
@@ -470,7 +470,7 @@
         "tags": [
           "posts"
         ],
-        "description": "Get posts filtered by user and sorted by date",
+        "description": "Get posts filtered by user and sorted by date.",
         "parameters": [
           {
             "name": "author",
@@ -518,7 +518,7 @@
         "tags": [
           "posts"
         ],
-        "description": "Create a new post",
+        "description": "Create a new post. The authenticated user will be the author.",
         "requestBody": {
           "required": true,
           "content": {
@@ -531,7 +531,7 @@
         },
         "responses": {
           "200": {
-            "description": "Created post",
+            "description": "Post created",
             "content": {
               "application/json": {
                 "schema": {
@@ -582,7 +582,7 @@
         "tags": [
           "posts"
         ],
-        "description": "Get users who liked the post",
+        "description": "Get users who liked the post.",
         "parameters": [
           {
             "name": "last",
@@ -624,7 +624,7 @@
         "tags": [
           "posts"
         ],
-        "description": "Add client (authenticated user) like",
+        "description": "Add client (authenticated user) like.",
         "responses": {
           "204": {
             "description": "Liked added successfully"
@@ -646,7 +646,7 @@
         "tags": [
           "posts"
         ],
-        "description": "Remove client (authenticated user) like",
+        "description": "Remove client (authenticated user) like.",
         "responses": {
           "204": {
             "description": "Liked removed successfully"
@@ -670,7 +670,7 @@
         "tags": [
           "comments"
         ],
-        "description": "Add comment to post",
+        "description": "Add comment to post. The authenticated user will be the author.",
         "requestBody": {
           "required": true,
           "content": {
@@ -709,7 +709,7 @@
         "tags": [
           "comments"
         ],
-        "description": "Get post comments sorted by date",
+        "description": "Get post comments sorted by date.",
         "parameters": [
           {
             "name": "post",
@@ -808,7 +808,7 @@
         "tags": [
           "comments"
         ],
-        "description": "Add client (authenticated user) like",
+        "description": "Add client (authenticated user) like.",
         "responses": {
           "204": {
             "description": "Liked added successfully"
@@ -830,7 +830,7 @@
         "tags": [
           "comments"
         ],
-        "description": "Remove client (authenticated user) like",
+        "description": "Remove client (authenticated user) like.",
         "responses": {
           "204": {
             "description": "Liked removed successfully"
@@ -860,7 +860,7 @@
           }
         }
       },
-      "LoginUser": {
+      "LoginBody": {
         "type": "object",
         "required": [
           "username",
@@ -875,7 +875,7 @@
           }
         }
       },
-      "SignUpUser": {
+      "SignupBody": {
         "type": "object",
         "required": [
           "username",
@@ -908,10 +908,12 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "integer",
+            "description": "User ID"
           },
           "profileImage": {
-            "type": "string"
+            "type": "string",
+            "description": "New profile image URL"
           }
         }
       },
@@ -1003,7 +1005,7 @@
             }
           },
           "author": {
-            "$ref": "#/components/schemas/User"
+            "$ref": "#/components/schemas/AuthorUser"
           },
           "_count": {
             "type": "object",
@@ -1053,7 +1055,7 @@
             "type": "string"
           },
           "author": {
-            "$ref": "#/components/schemas/User"
+            "$ref": "#/components/schemas/AuthorUser"
           },
           "_count": {
             "type": "object",
@@ -1074,12 +1076,25 @@
           }
         }
       },
+      "AuthorUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "username": {
+            "type": "string"
+          },
+          "profileImage": {
+            "type": "string"
+          }
+        }
+      },
       "CommentBody": {
         "type": "object",
         "required": [
           "postId",
-          "text",
-          "authorId"
+          "text"
         ],
         "properties": {
           "postId": {
@@ -1087,9 +1102,6 @@
           },
           "text": {
             "type": "string"
-          },
-          "authorId": {
-            "type": "integer"
           }
         }
       }
