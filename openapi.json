@@ -1,0 +1,1143 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Instagram Clone API",
+    "version": "1.0",
+    "contact": {
+      "email": "mateo.14.ledesma@gmail.com",
+      "url": "https://mateoledesma.vercel.app/contact"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://ig-clon-backend.herokuapp.com/api",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:8080/api",
+      "description": "Local server"
+    }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SuccessAuth"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "common validation": {
+                    "$ref": "#/components/examples/CommonError"
+                  },
+                  "username validation": {
+                    "$ref": "#/components/examples/UsernameValidationError"
+                  },
+                  "password validation": {
+                    "$ref": "#/components/examples/PasswordValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SuccessAuth"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "username validation": {
+                    "$ref": "#/components/examples/UsernameValidationError"
+                  },
+                  "password validation": {
+                    "$ref": "#/components/examples/PasswordValidationError"
+                  },
+                  "displayName validation": {
+                    "value": {
+                      "errors": {
+                        "displayName": "Error message"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SuccessAuth"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/auth/testAccount": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SuccessAuth"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "description": "Get user by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the user",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/profiles/{username}": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "description": "Get user by username",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "description": "Username of the user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/{id}/followers": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of the user",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "put": {
+        "description": "Add new follower to user",
+        "tags": [
+          "users"
+        ],
+        "responses": {
+          "204": {
+            "description": "Follower added successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "description": "Remove user follower",
+        "tags": [
+          "users"
+        ],
+        "responses": {
+          "204": {
+            "description": "Follower removed successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/me": {
+      "patch": {
+        "description": "Update user profile",
+        "tags": [
+          "users"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatedUser"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "description": "Forbidden when user is a test account"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/me/photo": {
+      "put": {
+        "description": "Upload and update user photo",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadPhotoBody"
+              }
+            }
+          }
+        },
+        "tags": [
+          "users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Photo updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatedPhoto"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/posts/feed": {
+      "get": {
+        "description": "Get feed posts sorted by date",
+        "parameters": [
+          {
+            "name": "last",
+            "description": "Last post id used as cursor",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "tags": [
+          "posts"
+        ],
+        "responses": {
+          "200": {
+            "description": "Feed posts array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/posts/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of the post",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "posts"
+        ],
+        "description": "Get post by id",
+        "responses": {
+          "200": {
+            "description": "Feed posts array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "posts"
+        ],
+        "responses": {
+          "204": {
+            "description": "Post deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "Post not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/posts": {
+      "get": {
+        "tags": [
+          "posts"
+        ],
+        "description": "Get posts filtered by user and sorted by date",
+        "parameters": [
+          {
+            "name": "author",
+            "description": "ID of the posts author",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "last",
+            "description": "Last post id used as cursor",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Posts array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "posts"
+        ],
+        "description": "Create a new post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/PostBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created post",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid post text",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "errors": {
+                    "text": "Error message"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/posts/{id}/likes": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of the post",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "posts"
+        ],
+        "description": "Get users who liked the post",
+        "parameters": [
+          {
+            "name": "last",
+            "in": "query",
+            "description": "Last ID of the user who liked the post used as cursor",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "Post not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "posts"
+        ],
+        "description": "Add client (authenticated user) like",
+        "responses": {
+          "204": {
+            "description": "Liked added successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "Post not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "posts"
+        ],
+        "description": "Remove client (authenticated user) like",
+        "responses": {
+          "204": {
+            "description": "Liked removed successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "Post not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/comments": {
+      "post": {
+        "tags": [
+          "comments"
+        ],
+        "description": "Add comment to post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comment added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comment"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "Post not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "comments"
+        ],
+        "description": "Get post comments sorted by date",
+        "parameters": [
+          {
+            "name": "post",
+            "description": "Post ID",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "last",
+            "description": "Last comment ID used as cursor",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post comments array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Comment"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "Post not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/comments/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the comment",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "tags": [
+          "comments"
+        ],
+        "description": "Delete comment. If authenticated user isn't the author, the response status will be 401.",
+        "responses": {
+          "204": {
+            "description": "Comment deleted successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "Comment not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/comments/{id}/likes": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of the comment",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "put": {
+        "tags": [
+          "comments"
+        ],
+        "description": "Add client (authenticated user) like",
+        "responses": {
+          "204": {
+            "description": "Liked added successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "Comment not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "comments"
+        ],
+        "description": "Remove client (authenticated user) like",
+        "responses": {
+          "204": {
+            "description": "Liked removed successfully"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "Comment not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "object"
+          }
+        }
+      },
+      "LoginUser": {
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "SignUpUser": {
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        }
+      },
+      "AuthUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdatedPhoto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "profileImage": {
+            "type": "string"
+          }
+        }
+      },
+      "User": {
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "username": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "profileImage": {
+            "type": "string"
+          },
+          "bio": {
+            "type": "string"
+          },
+          "_count": {
+            "type": "object",
+            "properties": {
+              "following": {
+                "type": "integer"
+              },
+              "followedBy": {
+                "type": "integer"
+              },
+              "posts": {
+                "type": "integer"
+              }
+            }
+          },
+          "followedByClient": {
+            "type": "boolean"
+          },
+          "isTestAccount": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdateUserBody": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "bio": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdatedUser": {
+        "$ref": "#/components/schemas/UpdateUserBody"
+      },
+      "UploadPhotoBody": {
+        "type": "object",
+        "required": [
+          "image"
+        ],
+        "properties": {
+          "image": {
+            "type": "string",
+            "format": "binary"
+          }
+        }
+      },
+      "Post": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "text": {
+            "type": "string"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "author": {
+            "$ref": "#/components/schemas/User"
+          },
+          "_count": {
+            "type": "object",
+            "properties": {
+              "comments": {
+                "type": "integer"
+              },
+              "likes": {
+                "type": "integer"
+              }
+            }
+          },
+          "hasClientLike": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PostBody": {
+        "type": "object",
+        "required": [
+          "images"
+        ],
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "images": {
+            "type": "string",
+            "format": "binary"
+          }
+        }
+      },
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "postId": {
+            "type": "integer"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "text": {
+            "type": "string"
+          },
+          "author": {
+            "$ref": "#/components/schemas/User"
+          },
+          "_count": {
+            "type": "object",
+            "properties": {
+              "likes": {
+                "type": "integer"
+              },
+              "replies": {
+                "type": "integer"
+              }
+            }
+          },
+          "hasClientLike": {
+            "type": "boolean"
+          },
+          "commentRepliedId": {
+            "type": "integer"
+          }
+        }
+      },
+      "CommentBody": {
+        "type": "object",
+        "required": [
+          "postId",
+          "text",
+          "authorId"
+        ],
+        "properties": {
+          "postId": {
+            "type": "integer"
+          },
+          "text": {
+            "type": "string"
+          },
+          "authorId": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "examples": {
+      "UsernameValidationError": {
+        "value": {
+          "errors": {
+            "username": "Error message"
+          }
+        }
+      },
+      "PasswordValidationError": {
+        "value": {
+          "errors": {
+            "password": "Error message"
+          }
+        }
+      },
+      "CommonError": {
+        "value": {
+          "errors": {
+            "error": "Error message"
+          }
+        }
+      }
+    },
+    "responses": {
+      "SuccessAuth": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AuthUser"
+            }
+          }
+        }
+      },
+      "UnauthorizedError": {
+        "description": "Access token is missing or invalid"
+      }
+    }
+  }
+}
