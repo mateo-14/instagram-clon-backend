@@ -8,7 +8,6 @@ import {
   getUserById,
   removeClientFollower,
   udpateClientProfile,
-  getUserPosts,
   updateClientPhoto,
 } from './users.controller';
 import updateValidator from './validators/update.validator';
@@ -21,7 +20,6 @@ router.get('/profiles/:username', verifyJwtMiddleware(), getUserByUsername);
 router.get('/:id', verifyJwtMiddleware(), getUserById);
 router.put('/:id/followers', verifyJwtMiddleware(), addClientFollow);
 router.delete('/:id/followers', verifyJwtMiddleware(), removeClientFollow);
-router.delete('/me/followers/:id', verifyJwtMiddleware(), removeClientFollower);
-router.get('/:id/posts', verifyJwtMiddleware(true), getUserPosts);
+// router.delete('/me/followers/:id', verifyJwtMiddleware(), removeClientFollower);
 
 export default router;

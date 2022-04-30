@@ -7,6 +7,7 @@ import {
   getFeedPosts,
   getLikes,
   getPost,
+  getPosts,
   removeLike,
 } from './posts.controller';
 import verifyJwtMiddleware from 'common/jwt/jwt.middleware';
@@ -17,6 +18,7 @@ const router = Router();
 
 const POST_MAX_IMAGES: number = parseInt(process.env.POST_MAX_IMAGES!) || 1;
 
+router.get('/', verifyJwtMiddleware(), getPosts);
 router.get('/feed', verifyJwtMiddleware(), getFeedPosts);
 router.get('/:id', verifyJwtMiddleware(), getPost);
 router.post(

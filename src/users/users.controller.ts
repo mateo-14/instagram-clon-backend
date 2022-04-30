@@ -2,7 +2,6 @@ import DuplicateUsernameError from 'common/exceptions/DuplicateUsernameError';
 import CustomUser from 'common/models/CustomUser';
 import { NextFunction, Response } from 'express';
 import * as usersService from './users.service';
-import * as postsService from 'posts/posts.service';
 import type { Request } from '../..';
 
 export async function getUserByUsername(req: Request, res: Response, next: NextFunction) {
@@ -87,24 +86,6 @@ export async function removeClientFollow(req: Request, res: Response, next: Next
 export async function removeClientFollower(req: Request, res: Response, next: NextFunction) {
   // TODO: Add remove followers to req.userId user
   res.sendStatus(501);
-}
-
-export async function getUserPosts(req: Request, res: Response, next: NextFunction) {
-  const { userId } = req;
-
-  try {
-    const posts = await postsService.getUserPosts(
-      parseInt(req.params.id),
-      parseInt(req.query.last?.toString() || ''),
-      userId
-    );
-
-    if (!posts) return res.sendStatus(404);
-
-    res.json(posts);
-  } catch (err) {
-    next(err);
-  }
 }
 
 export async function updateClientPhoto(req: Request, res: Response, next: NextFunction) {
