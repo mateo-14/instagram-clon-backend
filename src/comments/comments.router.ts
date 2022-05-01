@@ -1,14 +1,14 @@
 import { Router } from 'express';
 
 import verifyJwtMiddleware from 'common/jwt/jwt.middleware';
-import { addComment, deleteComment, getComments, addLike, removeLike } from './comments.controller';
+import { addComment, deleteComment, getPostComments, addLike, removeLike } from './comments.controller';
 
 const router = Router();
 
-router.post('/', verifyJwtMiddleware(), addComment);
-router.get('/', verifyJwtMiddleware(), getComments);
-router.delete('/:id', verifyJwtMiddleware(), deleteComment);
-router.put('/:id/likes', verifyJwtMiddleware(), addLike);
-router.delete('/:id/likes', verifyJwtMiddleware(), removeLike);
+router.post('/comments', verifyJwtMiddleware(), addComment);
+router.get('/posts/:id/comments', verifyJwtMiddleware(), getPostComments);
+router.delete('/comments/:id', verifyJwtMiddleware(), deleteComment);
+router.put('/comments/:id/likes', verifyJwtMiddleware(), addLike);
+router.delete('/comments/:id/likes', verifyJwtMiddleware(), removeLike);
 
 export default router;

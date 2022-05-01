@@ -22,17 +22,14 @@ export async function addComment(req: Request, res: Response, next: NextFunction
   }
 }
 
-export async function getComments(req: Request, res: Response, next: NextFunction) {
-  const { query, userId } = req;
+export async function getPostComments(req: Request, res: Response, next: NextFunction) {
+  const { query, userId, params } = req;
   if (!userId) return res.sendStatus(401);
-
-  const { post, last, replied } = query;
+  const { last, replied } = query;
   
   try {
-    if (!post || isNaN(parseInt(post.toString()))) return res.sendStatus(400);
-
     const comments: CustomComment[] = await commentsService.getComments(
-      parseInt(post.toString()),
+      parseInt(params.id),
       parseInt(last?.toString() || '') || 0,
       parseInt(replied?.toString() || '') || undefined,
       userId

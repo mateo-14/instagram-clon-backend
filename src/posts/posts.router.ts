@@ -7,7 +7,7 @@ import {
   getFeedPosts,
   getLikes,
   getPost,
-  getPosts,
+  getUserPosts,
   removeLike,
 } from './posts.controller';
 import verifyJwtMiddleware from 'common/jwt/jwt.middleware';
@@ -18,9 +18,9 @@ const router = Router();
 
 const POST_MAX_IMAGES: number = parseInt(process.env.POST_MAX_IMAGES!) || 1;
 
-router.get('/', verifyJwtMiddleware(), getPosts);
-router.get('/feed', verifyJwtMiddleware(), getFeedPosts);
-router.get('/:id', verifyJwtMiddleware(), getPost);
+router.get('/users/:id/posts', verifyJwtMiddleware(), getUserPosts);
+router.get('/posts/feed', verifyJwtMiddleware(), getFeedPosts);
+router.get('/posts/:id', verifyJwtMiddleware(), getPost);
 router.post(
   '/',
   verifyJwtMiddleware(),
@@ -28,9 +28,9 @@ router.post(
   createValidator,
   createPost
 );
-router.delete('/:id', verifyJwtMiddleware(), deletePost);
-router.put('/:id/likes', verifyJwtMiddleware(), addLike);
-router.delete('/:id/likes', verifyJwtMiddleware(), removeLike);
-router.get('/:id/likes', verifyJwtMiddleware(), getLikes);
+router.delete('/posts/:id', verifyJwtMiddleware(), deletePost);
+router.put('/posts/:id/likes', verifyJwtMiddleware(), addLike);
+router.delete('/posts/:id/likes', verifyJwtMiddleware(), removeLike);
+router.get('/posts/:id/likes', verifyJwtMiddleware(), getLikes);
 
 export default router;

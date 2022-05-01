@@ -94,12 +94,12 @@ export async function getLikes(req: Request, res: Response, next: NextFunction) 
   }
 }
 
-export async function getPosts(req: Request, res: Response, next: NextFunction) {
+export async function getUserPosts(req: Request, res: Response, next: NextFunction) {
   const { userId } = req;
 
   try {
     const posts = await postsService.getUserPosts(
-      parseInt(req.query.author?.toString() || ''),
+      parseInt(req.params.id),
       parseInt(req.query.last?.toString() || ''),
       userId
     );
