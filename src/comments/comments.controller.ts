@@ -2,15 +2,14 @@ import CustomComment from 'common/models/CustomComment';
 import { NextFunction, Response } from 'express';
 import * as commentsService from './comments.service';
 import type { Request } from '../..';
-export async function addComment(req: Request, res: Response, next: NextFunction) {
-  const { userId, body } = req;
+export async function addPostComment(req: Request, res: Response, next: NextFunction) {
+  const { userId, body, params } = req;
   if (!userId) return res.sendStatus(401);
-
-  const { text, commentRepliedId, postId } = body;
+  const { text, commentRepliedId } = body;
 
   try {
     const comment: null | CustomComment = await commentsService.createComment(
-      parseInt(postId),
+      parseInt(params.id),
       text,
       userId,
       commentRepliedId
