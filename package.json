@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "NODE_PATH=./src ts-node-dev --exit-child ./src/index.ts",
-    "postinstall": "npx prisma migrate deploy && npx prisma generate",
-    "build": "tsc",
+    "build": "npx prisma migrate deploy && tsc",
     "start": "NODE_PATH=./dist node ./dist/index.js",
     "test": "NODE_PATH=./src jest"
   },
@@ -37,5 +36,8 @@
     "prisma": "3.8.1",
     "ts-jest": "^27.1.4",
     "typescript": "4.5.5"
+  },
+  "engines": {
+    "node": "16"
   }
 }
