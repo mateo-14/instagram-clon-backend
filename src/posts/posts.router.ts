@@ -22,7 +22,7 @@ router.get('/users/:id/posts', verifyJwtMiddleware(), getUserPosts);
 router.get('/posts/feed', verifyJwtMiddleware(), getFeedPosts);
 router.get('/posts/:id', verifyJwtMiddleware(), getPost);
 router.post(
-  '/',
+  '/posts',
   verifyJwtMiddleware(),
   upload.array('images', POST_MAX_IMAGES),
   createValidator,
