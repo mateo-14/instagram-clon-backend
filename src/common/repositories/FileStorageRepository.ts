@@ -7,7 +7,7 @@ class FileStorageRepository implements FileStorage {
     const { error } = await supabaseClient.storage
       .from(BUCKET_NAME)
       .upload(key, sharp(file.buffer).webp({ quality: 50 }), {
-        contentType: file.mimetype,
+        contentType: 'image/webp',
       });
 
     if (error) throw new Error(error?.message);
