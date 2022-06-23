@@ -2,7 +2,6 @@ import FileStorage from 'common/interfaces/FileStorage';
 import FileStorageRepository from 'common/repositories/FileStorageRepository';
 import prisma from 'common/prismaClient';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
-import path from 'path';
 import supabaseClient, { BUCKET_NAME } from 'common/supabaseClient';
 import CustomUser from 'common/models/CustomUser';
 import prismaUserToUser from 'common/utils/prismaUserToUser';
@@ -141,7 +140,7 @@ export async function updatePhoto(
   if (user.profileImage) await fileStorageRepository.deleteMany([user.profileImage?.key]);
 
   try {
-    const imageKey = `users/${userId}/${Date.now()}${path.extname(image.originalname)}`;
+    const imageKey = `users/${userId}/${Date.now()}`;
     await fileStorageRepository.upload({
       file: image,
       key: imageKey,

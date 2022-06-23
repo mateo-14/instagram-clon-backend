@@ -3,7 +3,6 @@ import FileStorage from 'common/interfaces/FileStorage';
 import UserPost from 'common/models/UserPost';
 import FileStorageRepository from 'common/repositories/FileStorageRepository';
 import prisma from 'common/prismaClient';
-import path from 'path';
 import supabaseClient, { BUCKET_NAME } from 'common/supabaseClient';
 import prismaPostToUserPost from 'common/utils/prismaPostToUserPost';
 import prismaUserToUser from 'common/utils/prismaUserToUser';
@@ -46,15 +45,13 @@ export async function createPost(
     select: { id: true },
   });
 
-  const keys = images.map(
-    (file, i) => `users/${authorId}/posts_images/${postId}/${i}${path.extname(file.originalname)}`
-  );
+  const keys = images.map((_, i) => `users/${authorId}/posts_images/${postId}/${i}`);
 
   try {
     await fileStorageRepository.uploadMany(
       images.map((file, i) => ({
         file,
-        key: `users/${authorId}/posts_images/${postId}/${i}${path.extname(file.originalname)}`,
+        key: keys[i],
       }))
     );
 
@@ -67,7 +64,7 @@ export async function createPost(
       data: {
         images: {
           createMany: {
-            data: keys.map((key) => ({
+            data: keys.map(key => ({
               key,
               url: supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(key).publicURL || '',
             })),
@@ -91,7 +88,7 @@ export async function deletePost(id: number, authorId: number): Promise<boolean>
   });
   if (!post) return false;
   await prisma.post.delete({ where: { id } });
-  await fileStorageRepository.deleteMany(post.images.map((image) => image.key));
+  await fileStorageRepository.deleteMany(post.images.map(image => image.key));
   return true;
 }
 
@@ -135,7 +132,7 @@ async function getPosts(
     },
   });
 
-  return posts.map((post) => prismaPostToUserPost(post, clientId));
+  return posts.map(post => prismaPostToUserPost(post, clientId));
 }
 
 export async function getFeedPosts(clientId: number, last?: number): Promise<UserPost[]> {
@@ -147,7 +144,7 @@ export async function getFeedPosts(clientId: number, last?: number): Promise<Use
   if (!user) return [];
 
   const posts = await getPosts(
-    { authorId: { in: [...user.following.map((follow) => follow.id), clientId] } },
+    { authorId: { in: [...user.following.map(follow => follow.id), clientId] } },
     last,
     clientId
   );
@@ -182,5 +179,5 @@ export async function getLikes(id: number, last?: number): Promise<CustomUser[]>
     skip: last ? 1 : 0,
     take: 14,
   });
-  return likes.map((like) => prismaUserToUser(like.user));
+  return likes.map(like => prismaUserToUser(like.user));
 }
