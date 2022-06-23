@@ -6,7 +6,7 @@ class FileStorageRepository implements FileStorage {
   async upload({ key, file }: FileData): Promise<void> {
     const { error } = await supabaseClient.storage
       .from(BUCKET_NAME)
-      .upload(key + '.webp', sharp(file.buffer).webp({ quality: 50 }), {
+      .upload(key, sharp(file.buffer).webp({ quality: 50 }), {
         contentType: file.mimetype,
       });
 

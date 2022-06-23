@@ -140,7 +140,7 @@ export async function updatePhoto(
   if (user.profileImage) await fileStorageRepository.deleteMany([user.profileImage?.key]);
 
   try {
-    const imageKey = `users/${userId}/${Date.now()}`;
+    const imageKey = `users/${userId}/${Date.now()}.webp`;
     await fileStorageRepository.upload({
       file: image,
       key: imageKey,

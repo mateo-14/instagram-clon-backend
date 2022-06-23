@@ -45,7 +45,7 @@ export async function createPost(
     select: { id: true },
   });
 
-  const keys = images.map((_, i) => `users/${authorId}/posts_images/${postId}/${i}`);
+  const keys = images.map((_, i) => `users/${authorId}/posts_images/${postId}/${i}.webp`);
 
   try {
     await fileStorageRepository.uploadMany(
