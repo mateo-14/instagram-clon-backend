@@ -105,3 +105,15 @@ export async function updateClientPhoto(req: Request, res: Response, next: NextF
     next(err);
   }
 }
+
+export async function getSuggestedUsers(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { userId } = req;
+    if (!userId) return res.sendStatus(401);
+    const suggestedUsers = await usersService.getSuggestedUsers(userId);
+    if (!suggestedUsers) return res.sendStatus(404);
+    res.json(suggestedUsers);
+  } catch (err) {
+    next(err);
+  }
+}

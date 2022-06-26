@@ -19,15 +19,14 @@ export async function getUserById(id: number): Promise<CustomUser | null> {
       bio: true,
       profileImage: { select: { url: true } },
       isTestAccount: true,
-      _count: { select: { posts: true, followedBy: true, following: true } },
-    },
+      _count: { select: { posts: true, followedBy: true, following: true } }
+    }
   });
 
   if (!user) return null;
 
   return prismaUserToUser(user);
 }
-
 
 export async function getUserByUsername(
   username: string,
@@ -42,8 +41,8 @@ export async function getUserByUsername(
       bio: true,
       profileImage: { select: { url: true } },
       _count: { select: { posts: true, followedBy: true, following: true } },
-      followedBy: { where: { id: clientId }, select: { id: true } },
-    },
+      followedBy: { where: { id: clientId }, select: { id: true } }
+    }
   });
 
   if (!user) return null;
@@ -56,7 +55,7 @@ export async function addFollower(id: number, followerId: number): Promise<boole
     const user = await prisma.user.update({
       select: { id: true },
       where: { id },
-      data: { followedBy: { connect: { id: followerId } } },
+      data: { followedBy: { connect: { id: followerId } } }
     });
 
     return !!user;
@@ -75,7 +74,7 @@ export async function removeFollower(id: number, followerId: number): Promise<bo
     const user = await prisma.user.update({
       select: { id: true },
       where: { id },
-      data: { followedBy: { disconnect: { id: followerId } } },
+      data: { followedBy: { disconnect: { id: followerId } } }
     });
     return !!user;
   } catch (err) {
@@ -104,13 +103,13 @@ export async function updateUser(
         displayName: true,
         username: true,
         bio: true,
-        profileImage: { select: { url: true } },
+        profileImage: { select: { url: true } }
       },
       data: {
         username: data.username,
         displayName: data.displayName,
-        bio: data.bio,
-      },
+        bio: data.bio
+      }
     });
 
     return prismaUserToUser(updatedUser);
@@ -132,7 +131,7 @@ export async function updatePhoto(
 ): Promise<Pick<CustomUser, 'id' | 'profileImage'> | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { profileImage: { select: { key: true, id: true } } },
+    select: { profileImage: { select: { key: true, id: true } } }
   });
 
   if (!user) return null;
@@ -143,7 +142,7 @@ export async function updatePhoto(
     const imageKey = `users/${userId}/${Date.now()}.webp`;
     await fileStorageRepository.upload({
       file: image,
-      key: imageKey,
+      key: imageKey
     });
 
     const imageUrl =
@@ -152,16 +151,16 @@ export async function updatePhoto(
     if (user.profileImage) {
       await prisma.file.update({
         where: { id: user.profileImage.id },
-        data: { url: imageUrl, key: imageKey },
+        data: { url: imageUrl, key: imageKey }
       });
     } else {
       await prisma.user.update({
         where: { id: userId },
         data: {
           profileImage: {
-            create: { url: imageUrl, key: imageKey },
-          },
-        },
+            create: { url: imageUrl, key: imageKey }
+          }
+        }
       });
     }
 
@@ -169,4 +168,44 @@ export async function updatePhoto(
   } catch (err) {
     throw err;
   }
+}
+
+export async function getSuggestedUsers(clientId: number): Promise<Array<CustomUser> | null> {
+  const client = await prisma.user.findUnique({
+    where: { id: clientId },
+    select: { following: { take: 10, orderBy: { createdAt: 'desc' }, select: { id: true } } }
+  });
+  if (!client) return null;
+
+  const select = {
+    id: true,
+    username: true,
+    profileImage: { select: { url: true } }
+  };
+
+  const followsFollows = await prisma.user.findMany({
+    where: {
+      followedBy: {
+        some: { id: { in: client?.following.map(user => user.id) } }
+      },
+      id: { not: clientId }
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 7,
+    select
+  });
+
+  const newUsers = await prisma.user.findMany({
+    where: {
+      id: { notIn: [...followsFollows.map(user => user.id), clientId] }
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 7,
+    select
+  });
+ 
+  return [...followsFollows, ...newUsers]
+    .sort(() => 0.5 - Math.random())
+    .slice(0, 5)
+    .map(prismaUserToUser);
 }
