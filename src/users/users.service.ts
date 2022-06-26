@@ -33,7 +33,7 @@ export async function getUserByUsername(
   clientId?: number
 ): Promise<CustomUser | null> {
   const user = await prisma.user.findUnique({
-    where: { username },
+    where: { username: username.toLowerCase() },
     select: {
       id: true,
       displayName: true,
@@ -203,7 +203,7 @@ export async function getSuggestedUsers(clientId: number): Promise<Array<CustomU
     take: 7,
     select
   });
- 
+
   return [...followsFollows, ...newUsers]
     .sort(() => 0.5 - Math.random())
     .slice(0, 5)
