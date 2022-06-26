@@ -7,7 +7,6 @@ import supabaseClient, { BUCKET_NAME } from 'common/supabaseClient';
 import prismaPostToUserPost from 'common/utils/prismaPostToUserPost';
 import prismaUserToUser from 'common/utils/prismaUserToUser';
 import CustomUser from 'common/models/CustomUser';
-import { url } from 'inspector';
 
 const fileStorageRepository: FileStorage = FileStorageRepository;
 
