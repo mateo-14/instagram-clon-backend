@@ -16,16 +16,16 @@ export async function createUser(
   try {
     const hash = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
-      data: { username, password: hash, displayName },
+      data: { username: username.toLowerCase(), password: hash, displayName },
       include: {
-        profileImage: { select: { url: true } },
-      },
+        profileImage: { select: { url: true } }
+      }
     });
 
     const token: string = await jwtService.generateToken(user.id);
     return {
       ...prismaUserToUser({ ...user, _count: { posts: 0, followedBy: 0, following: 0 } }),
-      token,
+      token
     };
   } catch (err) {
     if (err instanceof PrismaClientKnownRequestError) {
@@ -41,7 +41,7 @@ export async function createUser(
 async function getUnsafeUser(where: any): Promise<UnsafeCustomUser | null> {
   const user = await prisma.user.findUnique({
     where,
-    select: { password: true, id: true },
+    select: { password: true, id: true }
   });
 
   if (!user) return null;
@@ -50,7 +50,7 @@ async function getUnsafeUser(where: any): Promise<UnsafeCustomUser | null> {
 }
 
 export async function login(username: string, password: string): Promise<AuthUser | null> {
-  const user: UnsafeCustomUser | null = await getUnsafeUser({ username });
+  const user: UnsafeCustomUser | null = await getUnsafeUser({ username: username.toLowerCase() });
   if (!user) return null;
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -76,7 +76,7 @@ export async function auth(token: string): Promise<AuthUser | null> {
 export async function loginWithATestAccount(): Promise<AuthUser | null> {
   const user = await prisma.user.findFirst({
     where: { isTestAccount: true },
-    select: { id: true },
+    select: { id: true }
   });
   if (!user) return null;
 
