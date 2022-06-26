@@ -205,8 +205,6 @@ export async function getSuggestedUsers(clientId: number): Promise<Array<CustomU
     select
   });
 
-  console.log(followsFollows, newUsers);
-
   return [...followsFollows, ...newUsers]
     .sort(() => 0.5 - Math.random())
     .slice(0, 5)
