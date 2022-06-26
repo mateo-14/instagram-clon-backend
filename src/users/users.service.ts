@@ -197,12 +197,15 @@ export async function getSuggestedUsers(clientId: number): Promise<Array<CustomU
 
   const newUsers = await prisma.user.findMany({
     where: {
-      id: { notIn: [...followsFollows.map(user => user.id), clientId] }
+      id: { notIn: [...followsFollows.map(user => user.id), clientId] },
+      followedBy: { none: { id: clientId } }
     },
     orderBy: { createdAt: 'desc' },
     take: 7,
     select
   });
+
+  console.log(followsFollows, newUsers);
 
   return [...followsFollows, ...newUsers]
     .sort(() => 0.5 - Math.random())
