@@ -3,7 +3,7 @@ import CustomUser from 'common/models/CustomUser';
 interface PrismaUser {
   id: number;
   username: string;
-  displayName: string | null;
+  displayName?: string | null;
   bio?: string | null;
   createdAt?: Date;
   _count?: { following: number; followedBy: number; posts: number };

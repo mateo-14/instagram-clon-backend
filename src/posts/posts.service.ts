@@ -7,6 +7,7 @@ import supabaseClient, { BUCKET_NAME } from 'common/supabaseClient';
 import prismaPostToUserPost from 'common/utils/prismaPostToUserPost';
 import prismaUserToUser from 'common/utils/prismaUserToUser';
 import CustomUser from 'common/models/CustomUser';
+import { url } from 'inspector';
 
 const fileStorageRepository: FileStorage = FileStorageRepository;
 
@@ -42,7 +43,7 @@ export async function createPost(
 ): Promise<UserPost> {
   const { id: postId } = await prisma.post.create({
     data: { authorId, text },
-    select: { id: true },
+    select: { id: true }
   });
 
   const keys = images.map((_, i) => `users/${authorId}/posts_images/${postId}/${i}.webp`);
@@ -51,26 +52,26 @@ export async function createPost(
     await fileStorageRepository.uploadMany(
       images.map((file, i) => ({
         file,
-        key: keys[i],
+        key: keys[i]
       }))
     );
 
     const post = await prisma.post.update({
       where: { id: postId },
       include: {
-        author: { select: { id: true, username: true, profileImage: true } },
-        images: { select: { url: true } },
+        author: { select: { id: true, username: true, profileImage: { select: { url: true } } } },
+        images: { select: { url: true } }
       },
       data: {
         images: {
           createMany: {
             data: keys.map(key => ({
               key,
-              url: supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(key).publicURL || '',
-            })),
-          },
-        },
-      },
+              url: supabaseClient.storage.from(BUCKET_NAME).getPublicUrl(key).publicURL || ''
+            }))
+          }
+        }
+      }
     });
 
     return prismaPostToUserPost(post);
@@ -84,7 +85,7 @@ export async function createPost(
 export async function deletePost(id: number, authorId: number): Promise<boolean> {
   const post = await prisma.post.findFirst({
     where: { id, authorId },
-    include: { images: { select: { key: true } } },
+    include: { images: { select: { key: true } } }
   });
   if (!post) return false;
   await prisma.post.delete({ where: { id } });
@@ -97,12 +98,12 @@ export async function getPost(id: number, clientId?: number): Promise<UserPost |
     where: { id },
     include: {
       _count: {
-        select: { comments: true, likes: true },
+        select: { comments: true, likes: true }
       },
       images: { select: { url: true } },
-      author: { select: { id: true, username: true, profileImage: true } },
-      likes: clientId ? { where: { userId: clientId }, select: { userId: true } } : false,
-    },
+      author: { select: { id: true, username: true, profileImage: { select: { url: true } } } },
+      likes: clientId ? { where: { userId: clientId }, select: { userId: true } } : false
+    }
   });
 
   if (!post) return null;
@@ -124,12 +125,12 @@ async function getPosts(
     take,
     include: {
       _count: {
-        select: { comments: true, likes: true },
+        select: { comments: true, likes: true }
       },
       images: { select: { url: true } },
-      author: { select: { id: true, username: true, profileImage: true } },
-      likes: { where: { userId: clientId }, select: { userId: true } },
-    },
+      author: { select: { id: true, username: true, profileImage: { select: { url: true } } } },
+      likes: { where: { userId: clientId }, select: { userId: true } }
+    }
   });
 
   return posts.map(post => prismaPostToUserPost(post, clientId));
@@ -138,7 +139,7 @@ async function getPosts(
 export async function getFeedPosts(clientId: number, last?: number): Promise<UserPost[]> {
   const user = await prisma.user.findUnique({
     where: { id: clientId },
-    select: { following: { select: { id: true } } },
+    select: { following: { select: { id: true } } }
   });
 
   if (!user) return [];
@@ -170,14 +171,14 @@ export async function getLikes(id: number, last?: number): Promise<CustomUser[]>
           id: true,
           username: true,
           displayName: true,
-          profileImage: { select: { url: true } },
-        },
-      },
+          profileImage: { select: { url: true } }
+        }
+      }
     },
     orderBy: { createdAt: 'desc' },
     cursor: last ? { userId_postId: { postId: id, userId: last } } : undefined,
     skip: last ? 1 : 0,
-    take: 14,
+    take: 14
   });
   return likes.map(like => prismaUserToUser(like.user));
 }

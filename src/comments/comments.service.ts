@@ -12,7 +12,7 @@ export async function createComment(
   try {
     if (commentRepliedId) {
       const commentReplied = await prisma.comment.findFirst({
-        where: { id: commentRepliedId, postId },
+        where: { id: commentRepliedId, postId }
       });
       if (!commentReplied || commentReplied?.commentRepliedId !== null) return null;
     }
@@ -22,13 +22,13 @@ export async function createComment(
         text,
         author: { connect: { id: authorId } },
         post: { connect: { id: postId } },
-        commentReplied: commentRepliedId ? { connect: { id: commentRepliedId } } : undefined,
+        commentReplied: commentRepliedId ? { connect: { id: commentRepliedId } } : undefined
       },
       include: {
-        author: { select: { id: true, username: true, profileImage: true } },
+        author: { select: { id: true, username: true, profileImage: { select: { url: true } } } },
         commentReplied: { select: { id: true } },
-        _count: { select: { likes: true, replies: true } },
-      },
+        _count: { select: { likes: true, replies: true } }
+      }
     });
     return prismaCommentToCustomComment(comment);
   } catch (err) {
@@ -39,7 +39,7 @@ export async function createComment(
 
 export async function deleteComment(id: number, authorId: number): Promise<boolean> {
   const comment = await prisma.comment.findFirst({
-    where: { id, authorId },
+    where: { id, authorId }
   });
 
   if (!comment) return false;
@@ -57,17 +57,17 @@ export async function getComments(
     where: { postId, commentRepliedId },
     orderBy: { createdAt: 'desc' },
     include: {
-      author: { select: { id: true, username: true, profileImage: true } },
+      author: { select: { id: true, username: true, profileImage: { select: { url: true } } } },
       commentReplied: { select: { id: true } },
       _count: { select: { likes: true, replies: true } },
-      likes: { where: { userId: clientId }, select: { userId: true } },
+      likes: { where: { userId: clientId }, select: { userId: true } }
     },
     cursor: last ? { id: last } : undefined,
     skip: last ? 1 : 0,
-    take: 5,
+    take: 5
   });
 
-  return comments.map((comment) => prismaCommentToCustomComment(comment, clientId));
+  return comments.map(comment => prismaCommentToCustomComment(comment, clientId));
 }
 
 export async function addLike(commentId: number, userId: number): Promise<boolean> {
